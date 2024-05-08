@@ -12,5 +12,8 @@ public class King extends Piece {
                    this.loadImage(CONSTANTS.IMG_URL + "black_king");
     }
 
-
+    @Override
+    public boolean canMove(int targetCol, int targetRow) {
+        return false;
+    }
 }
