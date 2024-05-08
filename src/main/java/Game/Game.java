@@ -46,6 +46,15 @@ public class Game extends JPanel implements Runnable {
     public void paintComponent(Graphics g) {
         super.paintComponent(getGraphics());
         board.draw( (Graphics2D) g );
+
+        for(int row = 0; row < CONSTANTS.ROWS; row++) {
+            for(int col = 0; col < CONSTANTS.COLS; col++) {
+                Square currSquare = Board.rep[row][col];
+                if(currSquare.containsPiece()) {
+                    currSquare.getPiece().draw( (Graphics2D) g );;
+                }
+            }
+        }
     }
 
     public void start() {

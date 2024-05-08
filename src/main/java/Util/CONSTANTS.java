@@ -13,4 +13,9 @@ public class CONSTANTS {
 
     // Game Settings
     public static final int FPS = 60;
+    public static final int WHITE = 0;
+    public static final int BLACK = 1;
+
+    // MISC
+    public static final String IMG_URL = "assets/images/pieces/";
 }
