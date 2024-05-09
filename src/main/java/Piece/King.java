@@ -13,7 +13,18 @@ public class King extends Piece {
     }
 
     @Override
-    public boolean canMove(int targetCol, int targetRow) {
-        return false;
+    public boolean canMove(int targetRow, int targetCol) {
+        return ( ( canMoveUpAndDown(targetCol, this.prevCol, targetRow, this.prevRow)  || 
+                   canMoveDiagonally(targetCol, this.prevCol, targetRow, this.prevRow) ) &&
+                   validSquare(targetRow, targetCol)
+                );
+    }
+
+    private boolean canMoveDiagonally(int x1, int x2, int y1, int y2) {
+        return ( (Math.abs(x1 - x2) * Math.abs(y1 - y2) ) == 1 );
+    }
+
+    private boolean canMoveUpAndDown(int x1, int x2, int y1, int y2) {
+        return ( (Math.abs(x1 - x2) + Math.abs(y1 - y2) ) == 1 );
     }
 }

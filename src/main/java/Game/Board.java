@@ -7,6 +7,7 @@ import Piece.Bishop;
 import Piece.King;
 import Piece.Knight;
 import Piece.Pawn;
+import Piece.Piece;
 import Piece.Queen;
 import Piece.Rook;
 import Util.CONSTANTS;
@@ -41,6 +42,10 @@ public class Board {
         }
     }
 
+    public static Piece getPiece(int row, int col) {
+        return rep[row][col].getPiece();
+    }
+
     private void initBoard() {
         for(int row = 0; row < CONSTANTS.ROWS; row++) {
             for(int col = 0; col < CONSTANTS.COLS; col++) {
@@ -54,9 +59,9 @@ public class Board {
         int row_other = (color == CONSTANTS.WHITE) ? 7 : 0;
 
         // Setting Pawns
-        for(int col = 0; col < CONSTANTS.COLS; col++) {
-            rep[row_pawn][col] = new Square(row_pawn, col, new Pawn(color, row_pawn, col));
-        }
+        //for(int col = 0; col < CONSTANTS.COLS; col++) {
+        //    rep[row_pawn][col] = new Square(row_pawn, col, new Pawn(color, row_pawn, col));
+        //}
 
         // knights
         rep[row_other][1] = new Square(row_other, 1, new Knight(color, row_other, 1));

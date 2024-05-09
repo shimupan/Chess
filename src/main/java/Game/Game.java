@@ -22,6 +22,9 @@ public class Game extends JPanel implements Runnable {
     private Piece activePC = null;
     private int currColor = CONSTANTS.WHITE;
 
+    private boolean canMove;
+    private boolean validSquare;
+
     public Game() {
         setPreferredSize(new Dimension(CONSTANTS.WIDTH, CONSTANTS.HEIGHT));
         setBackground(Color.BLACK);
@@ -72,11 +75,14 @@ public class Game extends JPanel implements Runnable {
         }
 
         if(this.activePC != null) {
-            g2.setColor(Color.WHITE);
-            g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.7f));
-            g2.fillRect(this.activePC.col * CONSTANTS.SQSIZE, this.activePC.row*CONSTANTS.SQSIZE, CONSTANTS.SQSIZE, CONSTANTS.SQSIZE);
-            g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER,1f));
-
+            if(this.canMove) {
+                // Highlight the square
+                g2.setColor(Color.WHITE);
+                g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.7f));
+                g2.fillRect(this.activePC.col * CONSTANTS.SQSIZE, this.activePC.row*CONSTANTS.SQSIZE, CONSTANTS.SQSIZE, CONSTANTS.SQSIZE);
+                g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER,1f));
+            }
+            
             this.activePC.draw(g2);
         }
     }
@@ -110,7 +116,12 @@ public class Game extends JPanel implements Runnable {
         // Mouse Release
         if(!mouse.pressed) {
             if(this.activePC != null) {
-                this.activePC.updatePos();
+                if (this.validSquare) {
+                    this.activePC.updatePos();
+                } else {
+                    this.activePC.resetPos();
+                }
+                
                 this.activePC = null;
                 this.activeSQ = null;
             }
@@ -118,11 +129,26 @@ public class Game extends JPanel implements Runnable {
     }
 
     private void simulate() {
+
+        this.canMove = false;
+        this.validSquare = false;
+
         // Dragging
         this.activePC.x = mouse.x - (CONSTANTS.SQSIZE/2);
         this.activePC.y = mouse.y - (CONSTANTS.SQSIZE/2);
 
         this.activePC.col = activePC.getCol(activePC.x);
         this.activePC.row = activePC.getCol(activePC.y);
+
+        // Checking if valid move
+        if (this.activePC.canMove(this.activePC.row, this.activePC.col)) {
+            this.canMove = true;
+            this.validSquare = true;
+        } else {
+            this.canMove = false;
+            this.validSquare = false;
+        }
+        
+
     }
 }
