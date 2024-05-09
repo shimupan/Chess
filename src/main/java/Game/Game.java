@@ -164,6 +164,7 @@ public class Game extends JPanel implements Runnable {
                     int prevRow = this.activePC.prevRow;
                     int prevCol = this.activePC.prevCol;
                     this.previousMoveLocation = Board.rep[prevRow][prevCol];
+                    this.hoveredSquare = null;
                     swapTurn();
                 } else {
                     this.activePC.resetPos();
