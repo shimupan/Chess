@@ -19,6 +19,8 @@ public abstract class Piece {
     public double value;
     public boolean moved;
 
+    public static Piece castlePC;
+
     public abstract boolean canMove(int targetRow, int targetCol);
 
     public Piece(int color, int row, int col) {
@@ -29,7 +31,7 @@ public abstract class Piece {
         this.prevRow = row;
         this.x = getX(col);
         this.y = getY(row);
-        this.moved = false;
+        this.moved = false;;
     }
 
     public void draw(Graphics2D g2) {

@@ -46,6 +46,10 @@ public class Board {
         return rep[row][col].getPiece();
     }
 
+    public static boolean containsPiece(int row, int col) {
+        return rep[row][col].containsPiece();
+    }
+
     private void initBoard() {
         for(int row = 0; row < CONSTANTS.ROWS; row++) {
             for(int col = 0; col < CONSTANTS.COLS; col++) {
@@ -64,19 +68,19 @@ public class Board {
         }
 
         // knights
-        rep[row_other][1] = new Square(row_other, 1, new Knight(color, row_other, 1));
-        rep[row_other][6] = new Square(row_other, 6, new Knight(color, row_other, 6));
+        //rep[row_other][1] = new Square(row_other, 1, new Knight(color, row_other, 1));
+        //rep[row_other][6] = new Square(row_other, 6, new Knight(color, row_other, 6));
 
         // bishops
-        rep[row_other][2] = new Square(row_other, 2, new Bishop(color, row_other, 2));
-        rep[row_other][5] = new Square(row_other, 5, new Bishop(color, row_other, 5));
+        //rep[row_other][2] = new Square(row_other, 2, new Bishop(color, row_other, 2));
+        //rep[row_other][5] = new Square(row_other, 5, new Bishop(color, row_other, 5));
 
         // rooks
         rep[row_other][0] = new Square(row_other, 0, new Rook(color, row_other, 0));
         rep[row_other][7] = new Square(row_other, 7, new Rook(color, row_other, 7));
 
         // queen
-        rep[row_other][3] = new Square(row_other, 3, new Queen(color, row_other, 3));
+        //rep[row_other][3] = new Square(row_other, 3, new Queen(color, row_other, 3));
 
         // king
         rep[row_other][4] = new Square(row_other, 4, new King(color, row_other, 4));

@@ -115,6 +115,7 @@ public class Game extends JPanel implements Runnable {
             this.currentMoveLocation.getPiece().draw(g2);
         }
 
+        // Color hovered square
         if(this.hoveredSquare != null) {
             g2.setColor(Color.YELLOW.brighter());
             g2.fillRect(this.hoveredSquare.getCol() * CONSTANTS.SQSIZE, 
@@ -165,6 +166,11 @@ public class Game extends JPanel implements Runnable {
                     int prevCol = this.activePC.prevCol;
                     this.previousMoveLocation = Board.rep[prevRow][prevCol];
                     this.hoveredSquare = null;
+
+                    if(Piece.castlePC != null) {
+                        Piece.castlePC.updatePos();
+                    } 
+
                     swapTurn();
                 } else {
                     this.activePC.resetPos();
@@ -180,6 +186,12 @@ public class Game extends JPanel implements Runnable {
         this.canMove = false;
         this.validSquare = false;
 
+        if(Piece.castlePC != null) {
+            Piece.castlePC.col = Piece.castlePC.prevCol;
+            Piece.castlePC.x = Piece.castlePC.getX(Piece.castlePC.col);
+            Piece.castlePC = null;
+        }
+
         // Dragging
         this.activePC.x = mouse.x - (CONSTANTS.SQSIZE/2);
         this.activePC.y = mouse.y - (CONSTANTS.SQSIZE/2);
@@ -191,13 +203,26 @@ public class Game extends JPanel implements Runnable {
         if (this.activePC.canMove(this.activePC.row, this.activePC.col)) {
             this.canMove = true;
             this.validSquare = true;
+            handleCastling();
         } else {
             this.canMove = false;
             this.validSquare = false;
         }
+        System.out.println(Piece.castlePC);
     }
 
     private void swapTurn() {
         this.currColor = (this.currColor == CONSTANTS.WHITE) ? CONSTANTS.BLACK : CONSTANTS.WHITE;
+    }
+
+    private void handleCastling() {
+        if(Piece.castlePC != null) {
+            // Check which side rook is being castled
+            if(Piece.castlePC.col == 0) { // left rook
+                Piece.castlePC.col += 3;
+            } else {
+                Piece.castlePC.col -= 2;
+            }
+        }
     }
 }
