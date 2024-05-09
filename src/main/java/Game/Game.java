@@ -1,12 +1,14 @@
 package Game;
 
 import java.awt.AlphaComposite;
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 
 import Controls.Mouse;
 import Piece.Piece;
@@ -20,8 +22,12 @@ public class Game extends JPanel implements Runnable {
 
     private Square activeSQ = null;
     private Piece activePC = null;
-    private int currColor = CONSTANTS.WHITE;
 
+    private Square hoveredSquare = null;
+    private Square previousMoveLocation = null;
+    private Square currentMoveLocation = null;
+    
+    private int currColor = CONSTANTS.WHITE;
     private boolean canMove;
     private boolean validSquare;
 
@@ -50,8 +56,10 @@ public class Game extends JPanel implements Runnable {
             prevTime = currTime;
 
             if(delta >= 1) {
-                update();
-                repaint();
+                SwingUtilities.invokeLater(() -> {
+                    update();
+                    repaint();
+                });
                 delta--;
             }
         }
@@ -65,6 +73,7 @@ public class Game extends JPanel implements Runnable {
 
         board.draw( g2 );
 
+        // Draw the pieces
         for(int row = 0; row < CONSTANTS.ROWS; row++) {
             for(int col = 0; col < CONSTANTS.COLS; col++) {
                 Square currSquare = Board.rep[row][col];
@@ -74,16 +83,45 @@ public class Game extends JPanel implements Runnable {
             }
         }
 
+        // Draw the piece moving
         if(this.activePC != null) {
             if(this.canMove) {
-                // Highlight the square
+                // Draw a border around the square
                 g2.setColor(Color.WHITE);
-                g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.7f));
-                g2.fillRect(this.activePC.col * CONSTANTS.SQSIZE, this.activePC.row*CONSTANTS.SQSIZE, CONSTANTS.SQSIZE, CONSTANTS.SQSIZE);
+                g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1));
+                int borderThickness = 5;
+                g2.setStroke(new BasicStroke(borderThickness)); // Set the thickness of the border
+                g2.drawRect(this.activePC.col * CONSTANTS.SQSIZE + borderThickness / 2, 
+                            this.activePC.row * CONSTANTS.SQSIZE + borderThickness / 2, 
+                            CONSTANTS.SQSIZE - borderThickness, 
+                            CONSTANTS.SQSIZE - borderThickness);
                 g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER,1f));
             }
-            
             this.activePC.draw(g2);
+        }
+
+        // Highlight the current move set
+        if(this.previousMoveLocation != null && this.currentMoveLocation != null) {
+            g2.setColor(Color.YELLOW.brighter());
+            g2.fillRect(this.previousMoveLocation.getCol() * CONSTANTS.SQSIZE, 
+                        this.previousMoveLocation.getRow() * CONSTANTS.SQSIZE, 
+                        CONSTANTS.SQSIZE, 
+                        CONSTANTS.SQSIZE);
+            g2.fillRect(this.currentMoveLocation.getCol() * CONSTANTS.SQSIZE, 
+                        this.currentMoveLocation.getRow() * CONSTANTS.SQSIZE, 
+                        CONSTANTS.SQSIZE, 
+                        CONSTANTS.SQSIZE);
+            
+            this.currentMoveLocation.getPiece().draw(g2);
+        }
+
+        if(this.hoveredSquare != null) {
+            g2.setColor(Color.YELLOW.brighter());
+            g2.fillRect(this.hoveredSquare.getCol() * CONSTANTS.SQSIZE, 
+                        this.hoveredSquare.getRow() * CONSTANTS.SQSIZE, 
+                        CONSTANTS.SQSIZE, 
+                        CONSTANTS.SQSIZE);
+            this.hoveredSquare.getPiece().draw(g2);
         }
     }
 
@@ -96,21 +134,21 @@ public class Game extends JPanel implements Runnable {
 
         // Mouse Press
         if(mouse.pressed && mouse.x <= 800) {
-
             if(this.activeSQ == null || this.activePC == null) { // No square selected
                 int clicked_row = mouse.y/CONSTANTS.SQSIZE;
                 int clicked_col = mouse.x/CONSTANTS.SQSIZE;
                 this.activeSQ = Board.rep[clicked_row][clicked_col];
-                // Square has a piece on it
-                if(this.activeSQ.containsPiece()) {
+                // Square has a piece on it and the piece is the curr turn
+                if(this.activeSQ.containsPiece() && 
+                this.activeSQ.getPiece().color == currColor) {
                     this.activePC = activeSQ.getPiece();
                     this.activePC.prevCol = this.activePC.col;
                     this.activePC.prevRow = this.activePC.row;
+                    this.hoveredSquare = this.activeSQ;
                 }
             } else { // Square selected
                 simulate(); 
             }
-
         }
 
         // Mouse Release
@@ -118,10 +156,18 @@ public class Game extends JPanel implements Runnable {
             if(this.activePC != null) {
                 if (this.validSquare) {
                     this.activePC.updatePos();
+
+                    int currRow = this.activePC.getRow(this.activePC.y);
+                    int currCol = this.activePC.getCol(this.activePC.x);
+                    this.currentMoveLocation = Board.rep[currRow][currCol];
+                    
+                    int prevRow = this.activePC.prevRow;
+                    int prevCol = this.activePC.prevCol;
+                    this.previousMoveLocation = Board.rep[prevRow][prevCol];
+                    swapTurn();
                 } else {
                     this.activePC.resetPos();
                 }
-                
                 this.activePC = null;
                 this.activeSQ = null;
             }
@@ -148,7 +194,9 @@ public class Game extends JPanel implements Runnable {
             this.canMove = false;
             this.validSquare = false;
         }
-        
+    }
 
+    private void swapTurn() {
+        this.currColor = (this.currColor == CONSTANTS.WHITE) ? CONSTANTS.BLACK : CONSTANTS.WHITE;
     }
 }

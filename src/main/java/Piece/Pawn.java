@@ -1,7 +1,5 @@
 package Piece;
 
-import javax.swing.border.Border;
-
 import Game.Board;
 import Util.CONSTANTS;
 

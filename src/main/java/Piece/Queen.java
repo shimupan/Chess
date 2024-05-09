@@ -14,6 +14,9 @@ public class Queen extends Piece {
     
     @Override
     public boolean canMove(int targetRow, int targetCol) {
+
+        if(sameSquare(targetRow, targetCol)) return false;
+
         if(targetCol == this.prevCol || targetRow == this.prevRow) 
         return (validSquare(targetRow, targetCol) && !pieceOnStraightLine(targetRow, targetCol));
 
