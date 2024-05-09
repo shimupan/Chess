@@ -11,4 +11,17 @@ public class Bishop extends Piece {
                    this.loadImage(CONSTANTS.IMG_URL + "white_bishop"): 
                    this.loadImage(CONSTANTS.IMG_URL + "black_bishop");
     }
+
+    @Override
+    public boolean canMove(int targetRow, int targetCol) {
+        return (canMoveDiagonally(targetRow, targetCol) && 
+                !sameSquare(targetRow, targetCol) && 
+                validSquare(targetRow, targetCol) &&
+                !pieceOnDiagonalLine(targetRow, targetCol)
+                );
+    }
+
+    private boolean canMoveDiagonally(int targetRow, int targetCol) {
+        return (Math.abs(targetCol - this.prevCol) == Math.abs(targetRow - prevRow));
+    }
 }

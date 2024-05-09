@@ -17,6 +17,9 @@ public abstract class Piece {
     public int col, row, prevCol, prevRow;
     public int color;
     public double value;
+    public boolean moved;
+
+    public abstract boolean canMove(int targetRow, int targetCol);
 
     public Piece(int color, int row, int col) {
         this.color = color;
@@ -26,6 +29,7 @@ public abstract class Piece {
         this.prevRow = row;
         this.x = getX(col);
         this.y = getY(row);
+        this.moved = false;
     }
 
     public void draw(Graphics2D g2) {
@@ -66,6 +70,8 @@ public abstract class Piece {
 
         Dest.updatePiece(Prev.getPiece());
         Prev.updatePiece(null);
+        
+        this.moved = true;
     }
 
     public void resetPos() {
@@ -88,12 +94,88 @@ public abstract class Piece {
         if(p == null) {
             return true;
         } else {
-            System.out.println(p.color != this.color);
             return p.color != this.color ? true : false;
         }
     }
 
-    public abstract boolean canMove(int targetRow, int targetCol);
+    public boolean sameSquare(int targetRow, int targetCol) {
+        return (targetCol == this.prevCol && targetRow == this.prevRow);
+    }
+
+    public boolean pieceOnStraightLine(int targetRow, int targetCol) {
+        
+        // Left
+        for(int col = this.prevCol-1; col > targetCol; col--) {
+            if(Board.rep[targetRow][col].containsPiece()) {
+                return true;
+            }
+        }
+
+        // Right
+        for(int col = this.prevCol+1; col < targetCol; col++) {
+            if(Board.rep[targetRow][col].containsPiece()) {
+                return true;
+            }
+        }
+
+        // Up
+        for(int row = this.prevRow-1; row > targetRow; row--) {
+            if(Board.rep[row][targetCol].containsPiece()) {
+                return true;
+            }
+        }
+
+        // Down
+        for(int row = this.prevRow+1; row < targetRow; row++) {
+            if(Board.rep[row][targetCol].containsPiece()) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public boolean pieceOnDiagonalLine(int targetRow, int targetCol) {
+        
+        if(targetRow < this.prevRow) { // upper left and right
+            
+            // upper left
+            for(int col = this.prevCol-1; col > targetCol; col--) {
+                int rowDiff = this.prevRow - Math.abs(col - this.prevCol);
+                if(Board.rep[rowDiff][col].containsPiece()) {
+                    return true;
+                }
+            }
+
+            // upper right
+            for(int col = this.prevCol+1; col < targetCol; col++) {
+                int rowDiff = this.prevRow - Math.abs(col - this.prevCol);
+                if(Board.rep[rowDiff][col].containsPiece()) {
+                    return true;
+                }
+            }
+
+        } else { // lower left and right
+
+            // lower left
+            for(int col = this.prevCol-1; col > targetCol; col--) {
+                int rowDiff = this.prevRow + Math.abs(col - this.prevCol);
+                if(Board.rep[rowDiff][col].containsPiece()) {
+                    return true;
+                }
+            }
+
+            // lower right
+            for(int col = this.prevCol+1; col < targetCol; col++) {
+                int rowDiff = this.prevRow - Math.abs(col - this.prevCol);
+                if(Board.rep[rowDiff][col].containsPiece()) {
+                    return true;
+                }
+            }
+        }
+        
+        return false;
+    }
 
     public int getX(int col) {
         return col * CONSTANTS.SQSIZE;

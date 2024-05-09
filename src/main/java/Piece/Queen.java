@@ -11,4 +11,15 @@ public class Queen extends Piece {
                    this.loadImage(CONSTANTS.IMG_URL + "white_queen"): 
                    this.loadImage(CONSTANTS.IMG_URL + "black_queen");
     }
+    
+    @Override
+    public boolean canMove(int targetRow, int targetCol) {
+        if(targetCol == this.prevCol || targetRow == this.prevRow) 
+        return (validSquare(targetRow, targetCol) && !pieceOnStraightLine(targetRow, targetCol));
+
+        if(Math.abs(targetCol - this.prevCol) == Math.abs(targetRow - prevRow)) 
+        return (validSquare(targetRow, targetCol) && !pieceOnDiagonalLine(targetRow, targetCol));
+        
+        return false;
+    }
 }
