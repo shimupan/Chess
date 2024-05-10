@@ -1,7 +1,11 @@
 package Piece;
 
+import java.util.Arrays;
+import java.util.List;
+
 import Game.Board;
 import Util.CONSTANTS;
+import Util.Coordinate;
 
 public class King extends Piece {
     
@@ -16,9 +20,10 @@ public class King extends Piece {
     @Override
     public boolean canMove(int targetRow, int targetCol) {
         // normal
-        if((canMoveUpAndDown(targetCol, this.prevCol, targetRow, this.prevRow)  || 
-            canMoveDiagonally(targetCol, this.prevCol, targetRow, this.prevRow) ) &&
-            validSquare(targetRow, targetCol)) {
+        if(inBound(targetRow,targetCol) && 
+           (canMoveUpAndDown(targetCol, this.prevCol, targetRow, this.prevRow)  || 
+           canMoveDiagonally(targetCol, this.prevCol, targetRow, this.prevRow) ) &&
+           validSquare(targetRow, targetCol)) {
             return true;
         }
 
@@ -47,6 +52,26 @@ public class King extends Piece {
         }
 
         return false;
+    }
+
+    @Override
+    public void getValidMoves() {
+        this.validMoves.clear();
+        List<Coordinate> directions = Arrays.asList(
+            new Coordinate(this.prevRow-1, this.prevCol+0), // up
+            new Coordinate(this.prevRow-1, this.prevCol+1), // up-right
+            new Coordinate(this.prevRow+0, this.prevCol+1), // right
+            new Coordinate(this.prevRow+1, this.prevCol+1), // down-right
+            new Coordinate(this.prevRow+1, this.prevCol+0), // down
+            new Coordinate(this.prevRow+1, this.prevCol-1), // down-left
+            new Coordinate(this.prevRow+0, this.prevCol-1), // left
+            new Coordinate(this.prevRow-1, this.prevCol-1)  // up-left
+        );
+        for(Coordinate c: directions) {
+            if(canMove(c.row, c.col)) {
+                this.validMoves.add(c);
+            }
+        }
     }
 
     private boolean canMoveDiagonally(int x1, int x2, int y1, int y2) {

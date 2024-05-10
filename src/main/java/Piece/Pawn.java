@@ -1,7 +1,11 @@
 package Piece;
 
+import java.util.Arrays;
+import java.util.List;
+
 import Game.Board;
 import Util.CONSTANTS;
+import Util.Coordinate;
 
 public class Pawn extends Piece {
 
@@ -18,7 +22,8 @@ public class Pawn extends Piece {
 
     @Override
     public boolean canMove(int targetRow, int targetCol) {
-        
+        if(!inBound(targetRow,targetCol)) return false;
+
         Piece p = Board.getPiece(targetRow, targetCol);
 
         // 1 Square Movement
@@ -51,5 +56,25 @@ public class Pawn extends Piece {
         }
 
         return false;
+    }
+
+    @Override
+    public void getValidMoves() {
+        this.validMoves.clear();
+        this.validMoves.clear();
+        int direction = this.color == CONSTANTS.WHITE ? -1 : 1;
+
+        List<Coordinate> potentialMoves = Arrays.asList(
+            new Coordinate(this.prevRow + direction, this.prevCol), // Move forward by one square
+            new Coordinate(this.prevRow + 2 * direction, this.prevCol), // Move forward by two squares
+            new Coordinate(this.prevRow + direction, this.prevCol - 1), // Capture diagonally left
+            new Coordinate(this.prevRow + direction, this.prevCol + 1) // Capture diagonally right
+        );
+
+        for (Coordinate move : potentialMoves) {
+            if (canMove(move.row, move.col)) {
+                this.validMoves.add(move);
+            }
+        }
     }
 }

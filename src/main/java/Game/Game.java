@@ -13,6 +13,7 @@ import javax.swing.SwingUtilities;
 import Controls.Mouse;
 import Piece.Piece;
 import Util.CONSTANTS;
+import Util.Coordinate;
 import Util.Sound;
 
 public class Game extends JPanel implements Runnable {
@@ -80,7 +81,7 @@ public class Game extends JPanel implements Runnable {
             for(int col = 0; col < CONSTANTS.COLS; col++) {
                 Square currSquare = Board.rep[row][col];
                 if(currSquare.containsPiece()) {
-                    currSquare.getPiece().draw( g2 );;
+                    currSquare.getPiece().draw( g2 );
                 }
             }
         }
@@ -108,6 +109,46 @@ public class Game extends JPanel implements Runnable {
                         CONSTANTS.SQSIZE, 
                         CONSTANTS.SQSIZE);
             this.hoveredSquare.getPiece().draw(g2);
+
+            if(this.activePC != null) {
+                this.activePC.getValidMoves();
+                for(Coordinate c: this.activePC.validMoves) {
+                    // Set color to semi-transparent gray
+                    g2.setColor(new Color(128, 128, 128, 128)); // RGBA values
+
+                    // Calculate the center of the square
+                    int centerX = c.col * CONSTANTS.SQSIZE + CONSTANTS.SQSIZE / 2;
+                    int centerY = c.row * CONSTANTS.SQSIZE + CONSTANTS.SQSIZE / 2;
+
+                    // Draw a circle in the center of the square
+                    g2.fillOval(centerX - CONSTANTS.SQSIZE / 8, 
+                                centerY - CONSTANTS.SQSIZE / 8, 
+                                CONSTANTS.SQSIZE / 4, 
+                                CONSTANTS.SQSIZE / 4);
+
+                    if(Board.getPiece(c.row, c.col) != null) {
+                        g2.setColor(Color.RED.brighter());
+                        g2.fillRect(c.col * CONSTANTS.SQSIZE, 
+                                    c.row * CONSTANTS.SQSIZE, 
+                                    CONSTANTS.SQSIZE, 
+                                    CONSTANTS.SQSIZE);
+                        Board.getPiece(c.row, c.col).draw(g2);
+                    }
+                    // en passant
+                    if (this.activePC.value == 1.0) {
+                        int direction = this.activePC.color == CONSTANTS.WHITE ? -1 : 1;
+                        Piece adjacentPawn = Board.getPiece(c.row - direction, c.col);
+                        if(adjacentPawn != null && adjacentPawn.value == 1.0 && adjacentPawn.color != this.activePC.color) {
+                            g2.setColor(Color.RED.brighter());
+                            g2.fillRect(adjacentPawn.col * CONSTANTS.SQSIZE, 
+                                        adjacentPawn.row * CONSTANTS.SQSIZE, 
+                                        CONSTANTS.SQSIZE, 
+                                        CONSTANTS.SQSIZE);
+                            adjacentPawn.draw(g2);
+                        }
+                    }
+                }
+            }  
         }
 
         // Draw the piece moving

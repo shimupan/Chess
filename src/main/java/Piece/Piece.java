@@ -12,6 +12,8 @@ import javax.imageio.ImageIO;
 import Game.Board;
 import Game.Square;
 import Util.CONSTANTS;
+import Util.Coordinate;
+import Util.Sound;
 
 public abstract class Piece {
 
@@ -21,11 +23,13 @@ public abstract class Piece {
     public int color;
     public double value;
     public boolean moved;
+    public List<Coordinate> validMoves = new ArrayList<>();
 
     public static Piece castlePC;
     public static List<Piece> enpassantPieces = new ArrayList<>();
 
     public abstract boolean canMove(int targetRow, int targetCol);
+    public abstract void getValidMoves();
 
     public Piece(int color, int row, int col) {
         this.color = color;
@@ -81,6 +85,7 @@ public abstract class Piece {
                 // If there is a pawn behind the current move
                 if (capturedSquare.getPiece() != null && capturedSquare.getPiece().value == 1.0) {
                     capturedSquare.updatePiece(null);
+                    Sound.play("capture");
                 }
             }
         }
@@ -90,6 +95,8 @@ public abstract class Piece {
         Square Prev = Board.rep[prevRow][prevCol];
         
         if(Dest.equals(Prev)) return;
+
+        if(Dest.containsPiece()) Sound.play("capture");
 
         Dest.updatePiece(Prev.getPiece());
         Prev.updatePiece(null);
@@ -165,7 +172,7 @@ public abstract class Piece {
             // upper left
             for(int col = this.prevCol-1; col > targetCol; col--) {
                 int rowDiff = this.prevRow - Math.abs(col - this.prevCol);
-                if(Board.rep[rowDiff][col].containsPiece()) {
+                if(inBound(rowDiff, col) && Board.rep[rowDiff][col].containsPiece()) {
                     return true;
                 }
             }
@@ -173,7 +180,7 @@ public abstract class Piece {
             // upper right
             for(int col = this.prevCol+1; col < targetCol; col++) {
                 int rowDiff = this.prevRow - Math.abs(col - this.prevCol);
-                if(Board.rep[rowDiff][col].containsPiece()) {
+                if(inBound(rowDiff, col) && Board.rep[rowDiff][col].containsPiece()) {
                     return true;
                 }
             }
@@ -183,7 +190,7 @@ public abstract class Piece {
             // lower left
             for(int col = this.prevCol-1; col > targetCol; col--) {
                 int rowDiff = this.prevRow + Math.abs(col - this.prevCol);
-                if(Board.rep[rowDiff][col].containsPiece()) {
+                if(inBound(rowDiff, col) && Board.rep[rowDiff][col].containsPiece()) {
                     return true;
                 }
             }
@@ -191,13 +198,20 @@ public abstract class Piece {
             // lower right
             for(int col = this.prevCol+1; col < targetCol; col++) {
                 int rowDiff = this.prevRow - Math.abs(col - this.prevCol);
-                if(Board.rep[rowDiff][col].containsPiece()) {
+                if(inBound(rowDiff, col) && Board.rep[rowDiff][col].containsPiece()) {
                     return true;
                 }
             }
         }
         
         return false;
+    }
+
+    public boolean inBound(int targetRow, int targetCol) {
+        return (targetRow < CONSTANTS.ROWS && 
+                targetRow >= 0 && 
+                targetCol < CONSTANTS.COLS && 
+                targetCol >= 0);
     }
 
     public int getX(int col) {
