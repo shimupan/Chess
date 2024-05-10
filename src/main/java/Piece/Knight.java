@@ -8,8 +8,8 @@ public class Knight extends Piece {
         super(color, row, col);
         this.value = 3.0;
         this.img = (color == CONSTANTS.WHITE) ? 
-                   this.loadImage(CONSTANTS.IMG_URL + "white_knight"): 
-                   this.loadImage(CONSTANTS.IMG_URL + "black_knight");
+                   this.loadImage(CONSTANTS.IMG_URL + "wn"): 
+                   this.loadImage(CONSTANTS.IMG_URL + "bn");
     }
 
     @Override

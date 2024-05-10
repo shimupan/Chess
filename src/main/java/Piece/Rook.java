@@ -8,8 +8,8 @@ public class Rook extends Piece {
         super(color, row, col);
         this.value = 5.0;
         this.img = (color == CONSTANTS.WHITE) ? 
-                   this.loadImage(CONSTANTS.IMG_URL + "white_rook"): 
-                   this.loadImage(CONSTANTS.IMG_URL + "black_rook");
+                   this.loadImage(CONSTANTS.IMG_URL + "wr"): 
+                   this.loadImage(CONSTANTS.IMG_URL + "br");
     }
 
     @Override

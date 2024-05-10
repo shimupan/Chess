@@ -84,23 +84,6 @@ public class Game extends JPanel implements Runnable {
             }
         }
 
-        // Draw the piece moving
-        if(this.activePC != null) {
-            if(this.canMove) {
-                // Draw a border around the square
-                g2.setColor(Color.WHITE);
-                g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1));
-                int borderThickness = 5;
-                g2.setStroke(new BasicStroke(borderThickness)); // Set the thickness of the border
-                g2.drawRect(this.activePC.col * CONSTANTS.SQSIZE + borderThickness / 2, 
-                            this.activePC.row * CONSTANTS.SQSIZE + borderThickness / 2, 
-                            CONSTANTS.SQSIZE - borderThickness, 
-                            CONSTANTS.SQSIZE - borderThickness);
-                g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER,1f));
-            }
-            this.activePC.draw(g2);
-        }
-
         // Highlight the current move set
         if(this.previousMoveLocation != null && this.currentMoveLocation != null) {
             g2.setColor(Color.YELLOW.brighter());
@@ -124,6 +107,23 @@ public class Game extends JPanel implements Runnable {
                         CONSTANTS.SQSIZE, 
                         CONSTANTS.SQSIZE);
             this.hoveredSquare.getPiece().draw(g2);
+        }
+
+        // Draw the piece moving
+        if(this.activePC != null) {
+            if(this.canMove) {
+                // Draw a border around the square
+                g2.setColor(Color.WHITE);
+                g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1));
+                int borderThickness = 5;
+                g2.setStroke(new BasicStroke(borderThickness)); // Set the thickness of the border
+                g2.drawRect(this.activePC.col * CONSTANTS.SQSIZE + borderThickness / 2, 
+                            this.activePC.row * CONSTANTS.SQSIZE + borderThickness / 2, 
+                            CONSTANTS.SQSIZE - borderThickness, 
+                            CONSTANTS.SQSIZE - borderThickness);
+                g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER,1f));
+            }
+            this.activePC.draw(g2);
         }
     }
 

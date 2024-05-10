@@ -8,8 +8,8 @@ public class Queen extends Piece {
         super(color, row, col);
         this.value = 9.0;
         this.img = (color == CONSTANTS.WHITE) ? 
-                   this.loadImage(CONSTANTS.IMG_URL + "white_queen"): 
-                   this.loadImage(CONSTANTS.IMG_URL + "black_queen");
+                   this.loadImage(CONSTANTS.IMG_URL + "wq"): 
+                   this.loadImage(CONSTANTS.IMG_URL + "bq");
     }
     
     @Override

@@ -8,8 +8,8 @@ public class Bishop extends Piece {
         super(color, row, col);
         this.value = 3.0001;
         this.img = (color == CONSTANTS.WHITE) ? 
-                   this.loadImage(CONSTANTS.IMG_URL + "white_bishop"): 
-                   this.loadImage(CONSTANTS.IMG_URL + "black_bishop");
+                   this.loadImage(CONSTANTS.IMG_URL + "wb"): 
+                   this.loadImage(CONSTANTS.IMG_URL + "bb");
     }
 
     @Override

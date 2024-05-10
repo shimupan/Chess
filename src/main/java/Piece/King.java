@@ -9,8 +9,8 @@ public class King extends Piece {
         super(color, row, col);
         this.value = 1000.0;
         this.img = (color == CONSTANTS.WHITE) ? 
-                   this.loadImage(CONSTANTS.IMG_URL + "white_king"): 
-                   this.loadImage(CONSTANTS.IMG_URL + "black_king");
+                   this.loadImage(CONSTANTS.IMG_URL + "wk"): 
+                   this.loadImage(CONSTANTS.IMG_URL + "bk");
     }
 
     @Override

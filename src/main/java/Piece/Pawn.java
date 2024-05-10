@@ -11,8 +11,8 @@ public class Pawn extends Piece {
         super(color, row, col);
         this.value = 1.0;
         this.img = (color == CONSTANTS.WHITE) ? 
-                   this.loadImage(CONSTANTS.IMG_URL + "white_pawn"): 
-                   this.loadImage(CONSTANTS.IMG_URL + "black_pawn");
+                   this.loadImage(CONSTANTS.IMG_URL + "wp"): 
+                   this.loadImage(CONSTANTS.IMG_URL + "bp");
         this.direction = (color == CONSTANTS.WHITE) ? -1 : 1;
     }
 
