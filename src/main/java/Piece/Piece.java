@@ -82,10 +82,17 @@ public abstract class Piece {
             if (Math.abs(this.col - this.prevCol) == 1) {
                 int capturedRow = (this.color == CONSTANTS.WHITE) ? this.row + 1 : this.row - 1;
                 Square capturedSquare = Board.rep[capturedRow][this.col];
-                // If there is a pawn behind the current move
-                if (capturedSquare.getPiece() != null && capturedSquare.getPiece().value == 1.0) {
+                Square movedSquare = Board.rep[this.row][this.col];
+
+                // If there is a pawn behind the current move and the moved square is empty
+                if (movedSquare.getPiece() == null && 
+                    capturedSquare.getPiece() != null && 
+                    capturedSquare.getPiece().value == 1.0) {
+                        
                     capturedSquare.updatePiece(null);
                     Sound.play("capture");
+                    System.out.println("ENPASSANT");
+                    return;
                 }
             }
         }
