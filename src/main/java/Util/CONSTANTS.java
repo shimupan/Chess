@@ -18,4 +18,5 @@ public class CONSTANTS {
 
     // MISC
     public static final String IMG_URL = "assets/images/pieces/";
+    public static final String SOUND_URL = "assets/sound/";
 }

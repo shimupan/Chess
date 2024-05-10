@@ -13,6 +13,7 @@ import javax.swing.SwingUtilities;
 import Controls.Mouse;
 import Piece.Piece;
 import Util.CONSTANTS;
+import Util.Sound;
 
 public class Game extends JPanel implements Runnable {
 
@@ -28,8 +29,8 @@ public class Game extends JPanel implements Runnable {
     private Square currentMoveLocation = null;
     
     private int currColor = CONSTANTS.WHITE;
-    private boolean canMove;
-    private boolean validSquare;
+    private boolean canMove = false;
+    private boolean validSquare = false;
     private boolean clearEnPassantNextTurn = false;
 
     public Game() {
@@ -156,6 +157,9 @@ public class Game extends JPanel implements Runnable {
         if(!mouse.pressed) {
             if(this.activePC != null) {
                 if (this.validSquare) {
+
+                    boolean castle = false;
+
                     // Update moved piece
                     this.activePC.updatePos();
                     
@@ -171,6 +175,8 @@ public class Game extends JPanel implements Runnable {
 
                     // castle
                     if(Piece.castlePC != null) {
+                        castle = true;
+                        Sound.play("castle");
                         Piece.castlePC.updatePos();
                         Piece.castlePC = null;
                     }
@@ -181,8 +187,11 @@ public class Game extends JPanel implements Runnable {
                     }
                     clearEnPassantNextTurn = !Piece.enpassantPieces.isEmpty();
 
+                    if(!castle) Sound.play("move-self");
+
                     swapTurn();
                 } else {
+                    Sound.play("illegal");
                     this.activePC.resetPos();
                 }
                 this.activePC = null;
