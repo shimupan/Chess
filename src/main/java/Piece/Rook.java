@@ -46,7 +46,16 @@ public class Rook extends Piece {
             int newCol = this.prevCol + direction.col;
 
             while (inBound(newRow, newCol) && canMove(newRow, newCol, board)) {
-                this.validMoves.add(new Coordinate(newRow, newCol));
+                if(check) {
+                    if(!kingInCheck(this, newRow, newCol, board)) {
+                        this.validMoves.add(new Coordinate(newRow, newCol));
+                    } else {
+                        this.validMoves.clear();
+                        return;
+                    }
+                } else {
+                    this.validMoves.add(new Coordinate(newRow, newCol));
+                }
 
                 // Move to the next square in the current direction
                 newRow += direction.row;

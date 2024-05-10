@@ -20,7 +20,15 @@ public class Board {
         rep = new Square[CONSTANTS.ROWS][CONSTANTS.COLS];
         initBoard();
         setPieces(0); setPieces(1);
-        rep[4][0] = new Square(4, 0, new Queen(CONSTANTS.WHITE, 4, 0));
+    }
+
+    public Board(Board other) {
+        this.rep = new Square[CONSTANTS.ROWS][CONSTANTS.COLS];
+        for(int row = 0; row < CONSTANTS.ROWS; row++) {
+            for(int col = 0; col < CONSTANTS.COLS; col++) {
+                this.rep[row][col] = new Square(other.rep[row][col]);
+            }
+        }
     }
 
     // Renders the Board
@@ -40,6 +48,10 @@ public class Board {
                             CONSTANTS.SQSIZE);
             }
         }
+    }
+
+    public Square getSquare(int row, int col) {
+        return rep[row][col];
     }
 
     public Piece getPiece(int row, int col) {
@@ -74,8 +86,6 @@ public class Board {
         // bishops
         rep[row_other][2] = new Square(row_other, 2, new Bishop(color, row_other, 2));
         rep[row_other][5] = new Square(row_other, 5, new Bishop(color, row_other, 5));
-
-        rep[4][1] = new Square(4, 1, new Bishop(color, 4, 1));
 
         // rooks
         rep[row_other][0] = new Square(row_other, 0, new Rook(color, row_other, 0));

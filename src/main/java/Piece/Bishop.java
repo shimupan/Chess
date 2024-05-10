@@ -46,12 +46,21 @@ public class Bishop extends Piece {
             int newCol = this.prevCol + direction.col;
 
             while (canMove(newRow, newCol, board)) {
-                this.validMoves.add(new Coordinate(newRow, newCol));
+                if(check) {
+                    // Check if king is in check
+                    if(!kingInCheck(this, newRow, newCol, board)) {
+                        this.validMoves.add(new Coordinate(newRow, newCol));
+                    } else {
+                        this.validMoves.clear();
+                        return;
+                    }
+                } else {
+                    this.validMoves.add(new Coordinate(newRow, newCol));
+                }
 
                 if (board.rep[newRow][newCol].containsPiece()) {
                     break;
                 }
-
                 // Move to the next square in the current direction
                 newRow += direction.row;
                 newCol += direction.col;

@@ -5,7 +5,9 @@ import java.awt.image.BufferedImage;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.imageio.ImageIO;
 
@@ -26,7 +28,7 @@ public abstract class Piece {
     public List<Coordinate> validMoves = new ArrayList<>();
 
     public static Piece castlePC;
-    public static List<Piece> enpassantPieces = new ArrayList<>();
+    public static Set<Piece> enpassantPieces = new HashSet<>();
 
     public abstract boolean canMove(int targetRow, int targetCol, Board board);
     public abstract void getValidMoves(Board board, boolean check);
@@ -232,22 +234,17 @@ public abstract class Piece {
 
     public boolean kingInCheck(Piece p, int targetRow, int targetCol, Board board) {
         // Create a deep copy of the board
-        Square[][] boardCopy = new Square[CONSTANTS.ROWS][CONSTANTS.COLS];
-        for (int row = 0; row < CONSTANTS.ROWS; row++) {
-            for (int col = 0; col < CONSTANTS.COLS; col++) {
-                boardCopy[row][col] = new Square(board.rep[row][col]);
-            }
-        }
+        Board boardCopy = new Board(board);
 
         // Simulate the move on the copied board
-        boardCopy[targetRow][targetCol].updatePiece(p);
-        boardCopy[p.prevRow][p.prevCol].updatePiece(null);
+        boardCopy.getSquare(targetRow, targetCol).updatePiece(p);
+        boardCopy.getSquare(this.prevRow, this.prevCol).updatePiece(null);
 
         // Find the king's position
         Coordinate kingCoordinate = null;
         for (int row = 0; row < CONSTANTS.ROWS; row++) {
             for (int col = 0; col < CONSTANTS.COLS; col++) {
-                Piece piece = boardCopy[row][col].getPiece();
+                Piece piece = boardCopy.getPiece(row, col);
                 if (piece != null && piece instanceof King && piece.color == p.color) {
                     kingCoordinate = new Coordinate(row, col);
                     break;
@@ -262,9 +259,9 @@ public abstract class Piece {
         boolean check = false;
         for (int row = 0; row < CONSTANTS.ROWS; row++) {
             for (int col = 0; col < CONSTANTS.COLS; col++) {
-                Piece pi = boardCopy[row][col].getPiece();
+                Piece pi = boardCopy.getPiece(row, col);
                 if (pi != null && pi.color != p.color) {
-                    pi.getValidMoves(board, false);
+                    pi.getValidMoves(boardCopy, false);
                     for (Coordinate c : pi.validMoves) {
                         if (c.equals(kingCoordinate)) {
                             check = true;

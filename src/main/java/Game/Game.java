@@ -260,7 +260,8 @@ public class Game extends JPanel implements Runnable {
         this.activePC.row = activePC.getCol(activePC.y);
 
         // Checking if valid move
-        if (this.activePC.canMove(this.activePC.row, this.activePC.col, this.board)) {
+        this.activePC.getValidMoves(board, true);
+        if (this.activePC.validMoves.contains(new Coordinate(this.activePC.row, this.activePC.col))) {
             this.canMove = true;
             this.validSquare = true;
             handleCastling();

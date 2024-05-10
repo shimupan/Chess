@@ -73,7 +73,15 @@ public class King extends Piece {
         );
         for(Coordinate c: directions) {
             if(canMove(c.row, c.col, board)) {
-                this.validMoves.add(c);
+                if(check) {
+                    // Check if current move will put king in check
+                    // SLOW
+                    if(!kingInCheck(this, c.row, c.col, board)) {
+                        this.validMoves.add(c);
+                    }
+                } else {
+                    this.validMoves.add(c);
+                }
             }
         }
     }
