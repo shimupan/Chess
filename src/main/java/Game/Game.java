@@ -79,7 +79,7 @@ public class Game extends JPanel implements Runnable {
         // Draw the pieces
         for(int row = 0; row < CONSTANTS.ROWS; row++) {
             for(int col = 0; col < CONSTANTS.COLS; col++) {
-                Square currSquare = Board.rep[row][col];
+                Square currSquare = board.rep[row][col];
                 if(currSquare.containsPiece()) {
                     currSquare.getPiece().draw( g2 );
                 }
@@ -111,7 +111,7 @@ public class Game extends JPanel implements Runnable {
             this.hoveredSquare.getPiece().draw(g2);
 
             if(this.activePC != null) {
-                this.activePC.getValidMoves();
+                this.activePC.getValidMoves(this.board, true);
                 for(Coordinate c: this.activePC.validMoves) {
                     // Set color to semi-transparent gray
                     g2.setColor(new Color(128, 128, 128, 128)); // RGBA values
@@ -126,18 +126,18 @@ public class Game extends JPanel implements Runnable {
                                 CONSTANTS.SQSIZE / 4, 
                                 CONSTANTS.SQSIZE / 4);
 
-                    if(Board.getPiece(c.row, c.col) != null) {
+                    if(board.getPiece(c.row, c.col) != null) {
                         g2.setColor(Color.RED.brighter());
                         g2.fillRect(c.col * CONSTANTS.SQSIZE, 
                                     c.row * CONSTANTS.SQSIZE, 
                                     CONSTANTS.SQSIZE, 
                                     CONSTANTS.SQSIZE);
-                        Board.getPiece(c.row, c.col).draw(g2);
+                        board.getPiece(c.row, c.col).draw(g2);
                     }
                     // en passant
                     if (this.activePC.value == 1.0) {
                         int direction = this.activePC.color == CONSTANTS.WHITE ? -1 : 1;
-                        Piece adjacentPawn = Board.getPiece(c.row - direction, c.col);
+                        Piece adjacentPawn = board.getPiece(c.row - direction, c.col);
                         if(adjacentPawn != null && adjacentPawn.value == 1.0 && adjacentPawn.color != this.activePC.color) {
                             g2.setColor(Color.RED.brighter());
                             g2.fillRect(adjacentPawn.col * CONSTANTS.SQSIZE, 
@@ -180,7 +180,7 @@ public class Game extends JPanel implements Runnable {
             if(this.activeSQ == null || this.activePC == null) { // No square selected
                 int clicked_row = mouse.y/CONSTANTS.SQSIZE;
                 int clicked_col = mouse.x/CONSTANTS.SQSIZE;
-                this.activeSQ = Board.rep[clicked_row][clicked_col];
+                this.activeSQ = board.rep[clicked_row][clicked_col];
                 // Square has a piece on it and the piece is the curr turn
                 if(this.activeSQ.containsPiece() && 
                 this.activeSQ.getPiece().color == currColor) {
@@ -202,23 +202,23 @@ public class Game extends JPanel implements Runnable {
                     boolean castle = false;
 
                     // Update moved piece
-                    this.activePC.updatePos();
+                    this.activePC.updatePos(this.board);
                     
                     // square highlighting
                     int currRow = this.activePC.getRow(this.activePC.y);
                     int currCol = this.activePC.getCol(this.activePC.x);
-                    this.currentMoveLocation = Board.rep[currRow][currCol];
+                    this.currentMoveLocation = board.rep[currRow][currCol];
                     
                     int prevRow = this.activePC.prevRow;
                     int prevCol = this.activePC.prevCol;
-                    this.previousMoveLocation = Board.rep[prevRow][prevCol];
+                    this.previousMoveLocation = board.rep[prevRow][prevCol];
                     this.hoveredSquare = null;
 
                     // castle
                     if(Piece.castlePC != null) {
                         castle = true;
                         Sound.play("castle");
-                        Piece.castlePC.updatePos();
+                        Piece.castlePC.updatePos(this.board);
                         Piece.castlePC = null;
                     }
 
@@ -260,7 +260,7 @@ public class Game extends JPanel implements Runnable {
         this.activePC.row = activePC.getCol(activePC.y);
 
         // Checking if valid move
-        if (this.activePC.canMove(this.activePC.row, this.activePC.col)) {
+        if (this.activePC.canMove(this.activePC.row, this.activePC.col, this.board)) {
             this.canMove = true;
             this.validSquare = true;
             handleCastling();
@@ -272,15 +272,13 @@ public class Game extends JPanel implements Runnable {
 
     private void swapTurn() {
         this.currColor = (this.currColor == CONSTANTS.WHITE) ? CONSTANTS.BLACK : CONSTANTS.WHITE;
-        /* 
         int count = 0;
         for(int i = 0; i < 8; i++) {
             for(int j = 0; j < 8; j++) {
-                if(Board.rep[i][j].containsPiece()) count ++;
+                if(board.rep[i][j].containsPiece()) count ++;
             }
         }
         System.out.println(count);
-        */
     }
 
     private void handleCastling() {

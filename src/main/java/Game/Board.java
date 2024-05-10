@@ -14,13 +14,13 @@ import Util.CONSTANTS;
 
 public class Board {
 
-    public static Square[][] rep;
+    public Square[][] rep;
 
     public Board() {
         rep = new Square[CONSTANTS.ROWS][CONSTANTS.COLS];
         initBoard();
         setPieces(0); setPieces(1);
-        
+        rep[4][0] = new Square(4, 0, new Queen(CONSTANTS.WHITE, 4, 0));
     }
 
     // Renders the Board
@@ -42,11 +42,11 @@ public class Board {
         }
     }
 
-    public static Piece getPiece(int row, int col) {
+    public Piece getPiece(int row, int col) {
         return rep[row][col].getPiece();
     }
 
-    public static boolean containsPiece(int row, int col) {
+    public boolean containsPiece(int row, int col) {
         return rep[row][col].containsPiece();
     }
 
@@ -74,6 +74,8 @@ public class Board {
         // bishops
         rep[row_other][2] = new Square(row_other, 2, new Bishop(color, row_other, 2));
         rep[row_other][5] = new Square(row_other, 5, new Bishop(color, row_other, 5));
+
+        rep[4][1] = new Square(4, 1, new Bishop(color, 4, 1));
 
         // rooks
         rep[row_other][0] = new Square(row_other, 0, new Rook(color, row_other, 0));

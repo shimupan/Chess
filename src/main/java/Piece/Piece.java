@@ -28,8 +28,8 @@ public abstract class Piece {
     public static Piece castlePC;
     public static List<Piece> enpassantPieces = new ArrayList<>();
 
-    public abstract boolean canMove(int targetRow, int targetCol);
-    public abstract void getValidMoves();
+    public abstract boolean canMove(int targetRow, int targetCol, Board board);
+    public abstract void getValidMoves(Board board, boolean check);
 
     public Piece(int color, int row, int col) {
         this.color = color;
@@ -40,6 +40,17 @@ public abstract class Piece {
         this.x = getX(col);
         this.y = getY(row);
         this.moved = false;
+    }
+
+    public Piece(Piece other) {
+        this.color = other.color;
+        this.row = other.row;
+        this.col = other.col;
+        this.prevCol = other.prevCol;
+        this.prevRow = other.prevRow;
+        this.x = other.x;
+        this.y = other.y;
+        this.moved = other.moved;
     }
 
     public void draw(Graphics2D g2) {
@@ -66,7 +77,7 @@ public abstract class Piece {
         return img;
     }
 
-    public void updatePos() {
+    public void updatePos(Board board) {
         this.x = getX(col);
         this.y = getY(row);
         this.col = getCol(x);
@@ -81,8 +92,8 @@ public abstract class Piece {
             // check if it did enpassant
             if (Math.abs(this.col - this.prevCol) == 1) {
                 int capturedRow = (this.color == CONSTANTS.WHITE) ? this.row + 1 : this.row - 1;
-                Square capturedSquare = Board.rep[capturedRow][this.col];
-                Square movedSquare = Board.rep[this.row][this.col];
+                Square capturedSquare = board.rep[capturedRow][this.col];
+                Square movedSquare = board.rep[this.row][this.col];
 
                 // If there is a pawn behind the current move and the moved square is empty
                 if (movedSquare.getPiece() == null && 
@@ -91,15 +102,13 @@ public abstract class Piece {
                         
                     capturedSquare.updatePiece(null);
                     Sound.play("capture");
-                    System.out.println("ENPASSANT");
-                    return;
                 }
             }
         }
 
         // Update the Squares Effected
-        Square Dest = Board.rep[row][col];
-        Square Prev = Board.rep[prevRow][prevCol];
+        Square Dest = board.rep[row][col];
+        Square Prev = board.rep[prevRow][prevCol];
         
         if(Dest.equals(Prev)) return;
 
@@ -118,15 +127,15 @@ public abstract class Piece {
         this.y = getY(this.row);
     }
 
-    public Piece getCollidingPiece(int targetRow, int targetCol) {
-        if(Board.getPiece(targetRow, targetCol) == this) {
+    public Piece getCollidingPiece(int targetRow, int targetCol, Board board) {
+        if(board.getPiece(targetRow, targetCol) == this) {
             return null;
         }
-        return Board.getPiece(targetRow, targetCol);
+        return board.getPiece(targetRow, targetCol);
     }
 
-    public boolean validSquare(int targetRow, int targetCol) {
-        Piece p = getCollidingPiece(targetRow, targetCol);
+    public boolean validSquare(int targetRow, int targetCol, Board board) {
+        Piece p = getCollidingPiece(targetRow, targetCol, board);
         
         if(p == null) {
             return true;
@@ -139,32 +148,32 @@ public abstract class Piece {
         return (targetCol == this.prevCol && targetRow == this.prevRow);
     }
 
-    public boolean pieceOnStraightLine(int targetRow, int targetCol) {
+    public boolean pieceOnStraightLine(int targetRow, int targetCol, Board board) {
         
         // Left
         for(int col = this.prevCol-1; col > targetCol; col--) {
-            if(Board.rep[targetRow][col].containsPiece()) {
+            if(board.rep[targetRow][col].containsPiece()) {
                 return true;
             }
         }
 
         // Right
         for(int col = this.prevCol+1; col < targetCol; col++) {
-            if(Board.rep[targetRow][col].containsPiece()) {
+            if(board.rep[targetRow][col].containsPiece()) {
                 return true;
             }
         }
 
         // Up
         for(int row = this.prevRow-1; row > targetRow; row--) {
-            if(Board.rep[row][targetCol].containsPiece()) {
+            if(board.rep[row][targetCol].containsPiece()) {
                 return true;
             }
         }
 
         // Down
         for(int row = this.prevRow+1; row < targetRow; row++) {
-            if(Board.rep[row][targetCol].containsPiece()) {
+            if(board.rep[row][targetCol].containsPiece()) {
                 return true;
             }
         }
@@ -172,14 +181,14 @@ public abstract class Piece {
         return false;
     }
 
-    public boolean pieceOnDiagonalLine(int targetRow, int targetCol) {
+    public boolean pieceOnDiagonalLine(int targetRow, int targetCol, Board board) {
         
         if(targetRow < this.prevRow) { // upper left and right
             
             // upper left
             for(int col = this.prevCol-1; col > targetCol; col--) {
                 int rowDiff = this.prevRow - Math.abs(col - this.prevCol);
-                if(inBound(rowDiff, col) && Board.rep[rowDiff][col].containsPiece()) {
+                if(inBound(rowDiff, col) && board.rep[rowDiff][col].containsPiece()) {
                     return true;
                 }
             }
@@ -187,7 +196,7 @@ public abstract class Piece {
             // upper right
             for(int col = this.prevCol+1; col < targetCol; col++) {
                 int rowDiff = this.prevRow - Math.abs(col - this.prevCol);
-                if(inBound(rowDiff, col) && Board.rep[rowDiff][col].containsPiece()) {
+                if(inBound(rowDiff, col) && board.rep[rowDiff][col].containsPiece()) {
                     return true;
                 }
             }
@@ -197,7 +206,7 @@ public abstract class Piece {
             // lower left
             for(int col = this.prevCol-1; col > targetCol; col--) {
                 int rowDiff = this.prevRow + Math.abs(col - this.prevCol);
-                if(inBound(rowDiff, col) && Board.rep[rowDiff][col].containsPiece()) {
+                if(inBound(rowDiff, col) && board.rep[rowDiff][col].containsPiece()) {
                     return true;
                 }
             }
@@ -205,7 +214,7 @@ public abstract class Piece {
             // lower right
             for(int col = this.prevCol+1; col < targetCol; col++) {
                 int rowDiff = this.prevRow - Math.abs(col - this.prevCol);
-                if(inBound(rowDiff, col) && Board.rep[rowDiff][col].containsPiece()) {
+                if(inBound(rowDiff, col) && board.rep[rowDiff][col].containsPiece()) {
                     return true;
                 }
             }
@@ -219,6 +228,57 @@ public abstract class Piece {
                 targetRow >= 0 && 
                 targetCol < CONSTANTS.COLS && 
                 targetCol >= 0);
+    }
+
+    public boolean kingInCheck(Piece p, int targetRow, int targetCol, Board board) {
+        // Create a deep copy of the board
+        Square[][] boardCopy = new Square[CONSTANTS.ROWS][CONSTANTS.COLS];
+        for (int row = 0; row < CONSTANTS.ROWS; row++) {
+            for (int col = 0; col < CONSTANTS.COLS; col++) {
+                boardCopy[row][col] = new Square(board.rep[row][col]);
+            }
+        }
+
+        // Simulate the move on the copied board
+        boardCopy[targetRow][targetCol].updatePiece(p);
+        boardCopy[p.prevRow][p.prevCol].updatePiece(null);
+
+        // Find the king's position
+        Coordinate kingCoordinate = null;
+        for (int row = 0; row < CONSTANTS.ROWS; row++) {
+            for (int col = 0; col < CONSTANTS.COLS; col++) {
+                Piece piece = boardCopy[row][col].getPiece();
+                if (piece != null && piece instanceof King && piece.color == p.color) {
+                    kingCoordinate = new Coordinate(row, col);
+                    break;
+                }
+            }
+            if (kingCoordinate != null) {
+                break;
+            }
+        }
+
+        // Check if the king is in check
+        boolean check = false;
+        for (int row = 0; row < CONSTANTS.ROWS; row++) {
+            for (int col = 0; col < CONSTANTS.COLS; col++) {
+                Piece pi = boardCopy[row][col].getPiece();
+                if (pi != null && pi.color != p.color) {
+                    pi.getValidMoves(board, false);
+                    for (Coordinate c : pi.validMoves) {
+                        if (c.equals(kingCoordinate)) {
+                            check = true;
+                            break;
+                        }
+                    }
+                }
+            }
+            if (check) {
+                break;
+            }
+        }
+
+        return check;
     }
 
     public int getX(int col) {

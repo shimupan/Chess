@@ -20,11 +20,16 @@ public class Pawn extends Piece {
         this.direction = (color == CONSTANTS.WHITE) ? -1 : 1;
     }
 
+    public Pawn(Pawn other) {
+        super(other);
+        this.direction = other.direction;
+    }
+
     @Override
-    public boolean canMove(int targetRow, int targetCol) {
+    public boolean canMove(int targetRow, int targetCol, Board board) {
         if(!inBound(targetRow,targetCol)) return false;
 
-        Piece p = Board.getPiece(targetRow, targetCol);
+        Piece p = board.getPiece(targetRow, targetCol);
 
         // 1 Square Movement
         if(targetCol == this.prevCol && 
@@ -59,8 +64,7 @@ public class Pawn extends Piece {
     }
 
     @Override
-    public void getValidMoves() {
-        this.validMoves.clear();
+    public void getValidMoves(Board board, boolean check) {
         this.validMoves.clear();
         int direction = this.color == CONSTANTS.WHITE ? -1 : 1;
 
@@ -72,8 +76,18 @@ public class Pawn extends Piece {
         );
 
         for (Coordinate move : potentialMoves) {
-            if (canMove(move.row, move.col)) {
-                this.validMoves.add(move);
+            if (canMove(move.row, move.col, board)) {
+                if(check) {
+                    if(!kingInCheck(this, move.row, move.col, board)) {
+                        this.validMoves.add(move);
+                    } else {
+                        this.validMoves.clear();
+                        return;
+                    }
+                } else {
+                    this.validMoves.add(move);
+                }
+                
             }
         }
     }

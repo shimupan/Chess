@@ -17,13 +17,17 @@ public class King extends Piece {
                    this.loadImage(CONSTANTS.IMG_URL + "bk");
     }
 
+    public King(King other) {
+        super(other);
+    }
+
     @Override
-    public boolean canMove(int targetRow, int targetCol) {
+    public boolean canMove(int targetRow, int targetCol, Board board) {
         // normal
         if(inBound(targetRow,targetCol) && 
            (canMoveUpAndDown(targetCol, this.prevCol, targetRow, this.prevRow)  || 
            canMoveDiagonally(targetCol, this.prevCol, targetRow, this.prevRow) ) &&
-           validSquare(targetRow, targetCol)) {
+           validSquare(targetRow, targetCol, board)) {
             return true;
         }
 
@@ -31,22 +35,22 @@ public class King extends Piece {
         if(this.moved) {return false;}
 
         // right castling
-        if(targetCol == this.prevCol + 2 && !pieceOnStraightLine(targetRow, targetCol)) {
-            if(Board.getPiece(this.prevRow, this.prevCol+3) != null && 
-               !Board.getPiece(this.prevRow, this.prevCol+3).moved) {
-                Piece.castlePC = Board.getPiece(this.prevRow, this.prevCol+3);
+        if(targetCol == this.prevCol + 2 && !pieceOnStraightLine(targetRow, targetCol, board)) {
+            if(board.getPiece(this.prevRow, this.prevCol+3) != null && 
+               !board.getPiece(this.prevRow, this.prevCol+3).moved) {
+                Piece.castlePC = board.getPiece(this.prevRow, this.prevCol+3);
 
                 return true;
             }
         }
 
         // left castle
-        if(targetCol == this.prevCol - 2 && !pieceOnStraightLine(targetRow, targetCol)) {
-            if(Board.getPiece(this.prevRow, this.prevCol+3) != null && 
-               !Board.getPiece(this.prevRow, this.prevCol-4).moved && 
-               !Board.containsPiece(this.prevRow, this.prevCol-3)) {
+        if(targetCol == this.prevCol - 2 && !pieceOnStraightLine(targetRow, targetCol, board)) {
+            if(board.getPiece(this.prevRow, this.prevCol+3) != null && 
+               !board.getPiece(this.prevRow, this.prevCol-4).moved && 
+               !board.containsPiece(this.prevRow, this.prevCol-3)) {
                 
-                Piece.castlePC = Board.getPiece(this.prevRow, this.prevCol-4);
+                Piece.castlePC = board.getPiece(this.prevRow, this.prevCol-4);
                 return true;
             }
         }
@@ -55,7 +59,7 @@ public class King extends Piece {
     }
 
     @Override
-    public void getValidMoves() {
+    public void getValidMoves(Board board, boolean check) {
         this.validMoves.clear();
         List<Coordinate> directions = Arrays.asList(
             new Coordinate(this.prevRow-1, this.prevCol+0), // up
@@ -68,7 +72,7 @@ public class King extends Piece {
             new Coordinate(this.prevRow-1, this.prevCol-1)  // up-left
         );
         for(Coordinate c: directions) {
-            if(canMove(c.row, c.col)) {
+            if(canMove(c.row, c.col, board)) {
                 this.validMoves.add(c);
             }
         }

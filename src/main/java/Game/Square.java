@@ -1,6 +1,12 @@
 package Game;
 
+import Piece.Bishop;
+import Piece.King;
+import Piece.Knight;
+import Piece.Pawn;
 import Piece.Piece;
+import Piece.Queen;
+import Piece.Rook;
 
 public class Square {
 
@@ -18,6 +24,28 @@ public class Square {
         this.row = row;
         this.col = col;
         this.piece = null;
+    }
+
+    public Square(Square other) {
+        this.row = other.row;
+        this.col = other.col;
+        if (other.piece != null) {
+            if (other.piece instanceof Pawn) {
+                this.piece = new Pawn((Pawn) other.piece);
+            } else if (other.piece instanceof Rook) {
+                this.piece = new Rook((Rook) other.piece);
+            } else if (other.piece instanceof Knight) {
+                this.piece = new Knight((Knight) other.piece);
+            } else if (other.piece instanceof Bishop) {
+                this.piece = new Bishop((Bishop) other.piece);
+            } else if (other.piece instanceof Queen) {
+                this.piece = new Queen((Queen) other.piece);
+            } else if (other.piece instanceof King) {
+                this.piece = new King((King) other.piece);
+            }
+        } else {
+            this.piece = null;
+        }
     }
 
     @Override

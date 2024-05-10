@@ -3,6 +3,7 @@ package Piece;
 import java.util.Arrays;
 import java.util.List;
 
+import Game.Board;
 import Util.CONSTANTS;
 import Util.Coordinate;
 
@@ -16,15 +17,19 @@ public class Knight extends Piece {
                    this.loadImage(CONSTANTS.IMG_URL + "bn");
     }
 
-    @Override
-    public boolean canMove(int targetRow, int targetCol) {
-        return ( inBound(targetRow,targetCol) &&
-                 (canMoveInL(targetCol, this.prevCol, targetRow, this.prevRow) ) &&
-                  validSquare(targetRow, targetCol) );
+    public Knight(Knight other) {
+        super(other);
     }
 
     @Override
-    public void getValidMoves() {
+    public boolean canMove(int targetRow, int targetCol, Board board) {
+        return ( inBound(targetRow,targetCol) &&
+                 (canMoveInL(targetCol, this.prevCol, targetRow, this.prevRow) ) &&
+                  validSquare(targetRow, targetCol, board) );
+    }
+
+    @Override
+    public void getValidMoves(Board board, boolean check) {
         this.validMoves.clear();
         List<Coordinate> potentialMoves = Arrays.asList(
             new Coordinate(this.prevRow-2, this.prevCol+1), // up 2, right 1
@@ -38,7 +43,7 @@ public class Knight extends Piece {
         );
 
         for (Coordinate move : potentialMoves) {
-            if (canMove(move.row, move.col)) {
+            if (canMove(move.row, move.col, board)) {
                 this.validMoves.add(move);
             }
         }

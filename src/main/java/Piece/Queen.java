@@ -3,6 +3,7 @@ package Piece;
 import java.util.Arrays;
 import java.util.List;
 
+import Game.Board;
 import Util.CONSTANTS;
 import Util.Coordinate;
 
@@ -15,23 +16,27 @@ public class Queen extends Piece {
                    this.loadImage(CONSTANTS.IMG_URL + "wq"): 
                    this.loadImage(CONSTANTS.IMG_URL + "bq");
     }
+
+    public Queen(Queen other) {
+        super(other);
+    }
     
     @Override
-    public boolean canMove(int targetRow, int targetCol) {
+    public boolean canMove(int targetRow, int targetCol, Board board) {
 
         if(sameSquare(targetRow, targetCol) || !inBound(targetRow, targetCol)) return false;
 
         if(targetCol == this.prevCol || targetRow == this.prevRow) 
-        return (validSquare(targetRow, targetCol) && !pieceOnStraightLine(targetRow, targetCol));
+        return (validSquare(targetRow, targetCol, board) && !pieceOnStraightLine(targetRow, targetCol, board));
 
         if(Math.abs(targetCol - this.prevCol) == Math.abs(targetRow - prevRow)) 
-        return (validSquare(targetRow, targetCol) && !pieceOnDiagonalLine(targetRow, targetCol));
+        return (validSquare(targetRow, targetCol, board) && !pieceOnDiagonalLine(targetRow, targetCol, board));
         
         return false;
     }
 
     @Override
-    public void getValidMoves() {
+    public void getValidMoves(Board board, boolean check) {
         this.validMoves.clear();
         List<Coordinate> directions = Arrays.asList(
             new Coordinate(-1, 1), // up-right
@@ -48,7 +53,7 @@ public class Queen extends Piece {
             int newRow = this.prevRow + direction.row;
             int newCol = this.prevCol + direction.col;
 
-            while (canMove(newRow, newCol)) {
+            while (canMove(newRow, newCol, board)) {
                 this.validMoves.add(new Coordinate(newRow, newCol));
 
                 // Move to the next square in the current direction
