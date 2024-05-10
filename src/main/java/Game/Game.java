@@ -30,6 +30,7 @@ public class Game extends JPanel implements Runnable {
     private int currColor = CONSTANTS.WHITE;
     private boolean canMove;
     private boolean validSquare;
+    private boolean clearEnPassantNextTurn = false;
 
     public Game() {
         setPreferredSize(new Dimension(CONSTANTS.WIDTH, CONSTANTS.HEIGHT));
@@ -132,7 +133,6 @@ public class Game extends JPanel implements Runnable {
     }
 
     private void update() {
-
         // Mouse Press
         if(mouse.pressed && mouse.x <= 800) {
             if(this.activeSQ == null || this.activePC == null) { // No square selected
@@ -156,8 +156,10 @@ public class Game extends JPanel implements Runnable {
         if(!mouse.pressed) {
             if(this.activePC != null) {
                 if (this.validSquare) {
+                    // Update moved piece
                     this.activePC.updatePos();
-
+                    
+                    // square highlighting
                     int currRow = this.activePC.getRow(this.activePC.y);
                     int currCol = this.activePC.getCol(this.activePC.x);
                     this.currentMoveLocation = Board.rep[currRow][currCol];
@@ -167,9 +169,17 @@ public class Game extends JPanel implements Runnable {
                     this.previousMoveLocation = Board.rep[prevRow][prevCol];
                     this.hoveredSquare = null;
 
+                    // castle
                     if(Piece.castlePC != null) {
                         Piece.castlePC.updatePos();
-                    } 
+                        Piece.castlePC = null;
+                    }
+
+                    // en-passant
+                    if (clearEnPassantNextTurn) {
+                        Piece.enpassantPieces.clear();
+                    }
+                    clearEnPassantNextTurn = !Piece.enpassantPieces.isEmpty();
 
                     swapTurn();
                 } else {
@@ -208,11 +218,19 @@ public class Game extends JPanel implements Runnable {
             this.canMove = false;
             this.validSquare = false;
         }
-        System.out.println(Piece.castlePC);
     }
 
     private void swapTurn() {
         this.currColor = (this.currColor == CONSTANTS.WHITE) ? CONSTANTS.BLACK : CONSTANTS.WHITE;
+        /* 
+        int count = 0;
+        for(int i = 0; i < 8; i++) {
+            for(int j = 0; j < 8; j++) {
+                if(Board.rep[i][j].containsPiece()) count ++;
+            }
+        }
+        System.out.println(count);
+        */
     }
 
     private void handleCastling() {

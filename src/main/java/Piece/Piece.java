@@ -4,6 +4,8 @@ import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.imageio.ImageIO;
 
@@ -12,6 +14,7 @@ import Game.Square;
 import Util.CONSTANTS;
 
 public abstract class Piece {
+
     public BufferedImage img;
     public int x, y;
     public int col, row, prevCol, prevRow;
@@ -20,6 +23,7 @@ public abstract class Piece {
     public boolean moved;
 
     public static Piece castlePC;
+    public static List<Piece> enpassantPieces = new ArrayList<>();
 
     public abstract boolean canMove(int targetRow, int targetCol);
 
@@ -31,7 +35,7 @@ public abstract class Piece {
         this.prevRow = row;
         this.x = getX(col);
         this.y = getY(row);
-        this.moved = false;;
+        this.moved = false;
     }
 
     public void draw(Graphics2D g2) {
@@ -58,12 +62,29 @@ public abstract class Piece {
         return img;
     }
 
-    public void updatePos() {        
+    public void updatePos() {
         this.x = getX(col);
         this.y = getY(row);
         this.col = getCol(x);
         this.row = getRow(y);
         
+        // If its a pawn 
+        if(this.value == 1.0) {
+            // check if it moved 2 squares
+            if(Math.abs(this.row - this.prevRow) == 2) {
+                Piece.enpassantPieces.add(this);
+            }
+            // check if it did enpassant
+            if (Math.abs(this.col - this.prevCol) == 1) {
+                int capturedRow = (this.color == CONSTANTS.WHITE) ? this.row + 1 : this.row - 1;
+                Square capturedSquare = Board.rep[capturedRow][this.col];
+                // If there is a pawn behind the current move
+                if (capturedSquare.getPiece() != null && capturedSquare.getPiece().value == 1.0) {
+                    capturedSquare.updatePiece(null);
+                }
+            }
+        }
+
         // Update the Squares Effected
         Square Dest = Board.rep[row][col];
         Square Prev = Board.rep[prevRow][prevCol];

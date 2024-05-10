@@ -40,6 +40,15 @@ public class Pawn extends Piece {
            p.color != this.color) {
             return true;
         }
+        // En Passant
+        if(Math.abs(targetCol - this.prevCol) == 1 && 
+           targetRow == this.prevRow + direction) {
+            for(Piece ep: enpassantPieces) {
+                if(ep.col == targetCol) {
+                    return true;
+                }
+            }
+        }
 
         return false;
     }
