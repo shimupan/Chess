@@ -14,6 +14,7 @@ import Game.Square;
 import Util.CONSTANTS;
 import Util.Coordinate;
 import Util.Sound;
+import Util.Type;
 
 public abstract class Piece {
 
@@ -85,7 +86,7 @@ public abstract class Piece {
         this.row = getRow(y);
         
         // If its a pawn 
-        if(this.value == 1.0) {
+        if(Type.isPawn(this)) {
             // check if it moved 2 squares
             if(Math.abs(this.row - this.prevRow) == 2) {
                 Piece.enpassantPieces.add(this);
@@ -99,7 +100,7 @@ public abstract class Piece {
                 // If there is a pawn behind the current move and the moved square is empty
                 if (movedSquare.getPiece() == null && 
                     capturedSquare.getPiece() != null && 
-                    capturedSquare.getPiece().value == 1.0) {
+                    Type.isPawn(capturedSquare.getPiece())) {
                         
                     capturedSquare.updatePiece(null);
                     Sound.play("capture");
@@ -224,7 +225,7 @@ public abstract class Piece {
         return false;
     }
 
-    public boolean inBound(int targetRow, int targetCol) {
+    public static boolean inBound(int targetRow, int targetCol) {
         return (targetRow < CONSTANTS.ROWS && 
                 targetRow >= 0 && 
                 targetCol < CONSTANTS.COLS && 

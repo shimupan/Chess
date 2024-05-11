@@ -6,8 +6,6 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.util.List;
-import java.util.Set;
 
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
@@ -17,6 +15,7 @@ import Piece.Piece;
 import Util.CONSTANTS;
 import Util.Coordinate;
 import Util.Sound;
+import Util.Type;
 
 public class Game extends JPanel implements Runnable {
 
@@ -220,6 +219,7 @@ public class Game extends JPanel implements Runnable {
                     clearEnPassantNextTurn = !Piece.enpassantPieces.isEmpty();
 
                     if(!castle) Sound.play("move-self");
+
                     swapTurn();
                 } else {
                     Sound.play("illegal");

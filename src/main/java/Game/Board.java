@@ -51,10 +51,14 @@ public class Board {
     }
 
     public Square getSquare(int row, int col) {
+        if(!Piece.inBound(row, col)) return null;
+        
         return rep[row][col];
     }
 
     public Piece getPiece(int row, int col) {
+        if(!Piece.inBound(row, col)) return null;
+
         return rep[row][col].getPiece();
     }
 
