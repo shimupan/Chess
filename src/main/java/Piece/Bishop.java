@@ -50,8 +50,6 @@ public class Bishop extends Piece {
                     // Check if king is in check
                     if(!kingInCheck(this, newRow, newCol, board)) {
                         this.validMoves.add(new Coordinate(newRow, newCol));
-                    } else {
-                        break;
                     }
                 } else {
                     this.validMoves.add(new Coordinate(newRow, newCol));

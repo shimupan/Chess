@@ -4,9 +4,7 @@ import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import javax.imageio.ImageIO;
@@ -25,7 +23,7 @@ public abstract class Piece {
     public int color;
     public double value;
     public boolean moved;
-    public List<Coordinate> validMoves = new ArrayList<>();
+    public Set<Coordinate> validMoves = new HashSet<>();
 
     public static Piece castlePC;
     public static Piece[] kingPos = new Piece[2];
@@ -241,7 +239,6 @@ public abstract class Piece {
         boardCopy.getSquare(targetRow, targetCol).updatePiece(p);
         boardCopy.getSquare(this.prevRow, this.prevCol).updatePiece(null);
 
-        // Find the king's position
         // Find the king's position
         Coordinate kingCoordinate = Piece.getKingPosByColor(p.color);
 

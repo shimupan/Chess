@@ -49,8 +49,6 @@ public class Rook extends Piece {
                 if(check) {
                     if(!kingInCheck(this, newRow, newCol, board)) {
                         this.validMoves.add(new Coordinate(newRow, newCol));
-                    } else {
-                        break;
                     }
                 } else {
                     this.validMoves.add(new Coordinate(newRow, newCol));

@@ -30,17 +30,18 @@ public class Pawn extends Piece {
         if(!inBound(targetRow,targetCol)) return false;
 
         Piece p = board.getPiece(targetRow, targetCol);
+        
+        boolean isOneSquareAheadEmpty = targetCol == this.prevCol && 
+                                        board.getPiece(this.prevRow + direction, this.prevCol) == null;
 
-        // 1 Square Movement
-        if(targetCol == this.prevCol && 
-           targetRow == this.prevRow + direction && 
-           p == null) {
+        if(isOneSquareAheadEmpty && targetRow == this.prevRow + direction) { // 1 Square Movement
             return true;
-        }
-        // 2 Square Movement
-        if(targetCol == this.prevCol && targetRow == this.prevRow + (direction*2) && 
-           p == null && 
-           !this.moved) {
+        } 
+        
+        if(isOneSquareAheadEmpty && targetCol == this.prevCol && 
+        targetRow == this.prevRow + (direction*2) && 
+        p == null && 
+        !this.moved) { // 2 Square Movement
             return true;
         }
         // Capture Diagonal

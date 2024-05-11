@@ -6,6 +6,8 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.util.List;
+import java.util.Set;
 
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
@@ -136,19 +138,6 @@ public class Game extends JPanel implements Runnable {
                                     CONSTANTS.SQSIZE);
                         board.getPiece(c.row, c.col).draw(g2);
                     }
-                    // en passant
-                    if (this.activePC.value == 1.0) {
-                        int direction = this.activePC.color == CONSTANTS.WHITE ? -1 : 1;
-                        Piece adjacentPawn = board.getPiece(c.row - direction, c.col);
-                        if(adjacentPawn != null && adjacentPawn.value == 1.0 && adjacentPawn.color != this.activePC.color) {
-                            g2.setColor(Color.RED.brighter());
-                            g2.fillRect(adjacentPawn.col * CONSTANTS.SQSIZE, 
-                                        adjacentPawn.row * CONSTANTS.SQSIZE, 
-                                        CONSTANTS.SQSIZE, 
-                                        CONSTANTS.SQSIZE);
-                            adjacentPawn.draw(g2);
-                        }
-                    }
                 }
             }  
         }
@@ -231,7 +220,6 @@ public class Game extends JPanel implements Runnable {
                     clearEnPassantNextTurn = !Piece.enpassantPieces.isEmpty();
 
                     if(!castle) Sound.play("move-self");
-
                     swapTurn();
                 } else {
                     Sound.play("illegal");
