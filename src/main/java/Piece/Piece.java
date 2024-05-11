@@ -28,6 +28,7 @@ public abstract class Piece {
     public List<Coordinate> validMoves = new ArrayList<>();
 
     public static Piece castlePC;
+    public static Piece[] kingPos = new Piece[2];
     public static Set<Piece> enpassantPieces = new HashSet<>();
 
     public abstract boolean canMove(int targetRow, int targetCol, Board board);
@@ -241,18 +242,12 @@ public abstract class Piece {
         boardCopy.getSquare(this.prevRow, this.prevCol).updatePiece(null);
 
         // Find the king's position
-        Coordinate kingCoordinate = null;
-        for (int row = 0; row < CONSTANTS.ROWS; row++) {
-            for (int col = 0; col < CONSTANTS.COLS; col++) {
-                Piece piece = boardCopy.getPiece(row, col);
-                if (piece != null && piece instanceof King && piece.color == p.color) {
-                    kingCoordinate = new Coordinate(row, col);
-                    break;
-                }
-            }
-            if (kingCoordinate != null) {
-                break;
-            }
+        // Find the king's position
+        Coordinate kingCoordinate = Piece.getKingPosByColor(p.color);
+
+        // If the piece being moved is a king, manually update kingCoordinate
+        if (p instanceof King && p.color == p.color) {
+            kingCoordinate = new Coordinate(targetRow, targetCol);
         }
 
         // Check if the king is in check
@@ -294,5 +289,9 @@ public abstract class Piece {
         return (x + (CONSTANTS.SQSIZE/2) ) / CONSTANTS.SQSIZE;
     }
 
-    
+    public static Coordinate getKingPosByColor(int color) {
+        return (color == CONSTANTS.WHITE) ? 
+               new Coordinate(kingPos[0].row, kingPos[0].col): 
+               new Coordinate(kingPos[1].row, kingPos[1].col);
+    }
 }

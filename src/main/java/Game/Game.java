@@ -39,6 +39,8 @@ public class Game extends JPanel implements Runnable {
         setBackground(Color.BLACK);
 
         board = new Board();
+        Piece.kingPos[0] = board.getPiece(7,4); // white
+        Piece.kingPos[1] = board.getPiece(0,4); // black
 
         mouse = new Mouse();
         addMouseListener(mouse);

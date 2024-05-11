@@ -22,4 +22,9 @@ public class Coordinate {
         result = 31 * result + col;
         return result;
     }
+
+    @Override
+    public String toString() {
+        return "Coordinate{" + "row=" + row + ", col=" + col + '}';
+    }
 }
