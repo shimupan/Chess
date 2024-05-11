@@ -48,8 +48,8 @@ public abstract class Piece {
         this.color = other.color;
         this.row = other.row;
         this.col = other.col;
-        this.prevCol = other.prevCol;
-        this.prevRow = other.prevRow;
+        this.prevCol = other.col;
+        this.prevRow = other.row;
         this.x = other.x;
         this.y = other.y;
         this.moved = other.moved;
@@ -215,7 +215,7 @@ public abstract class Piece {
 
             // lower right
             for(int col = this.prevCol+1; col < targetCol; col++) {
-                int rowDiff = this.prevRow - Math.abs(col - this.prevCol);
+                int rowDiff = this.prevRow + Math.abs(col - this.prevCol);
                 if(inBound(rowDiff, col) && board.rep[rowDiff][col].containsPiece()) {
                     return true;
                 }

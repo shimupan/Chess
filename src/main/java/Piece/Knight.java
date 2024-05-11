@@ -47,9 +47,6 @@ public class Knight extends Piece {
                 if(check) {
                     if(!kingInCheck(this, move.row, move.col, board)) {
                         this.validMoves.add(new Coordinate(move.row, move.col));
-                    } else {
-                        this.validMoves.clear();
-                        return;
                     }
                 } else {
                     this.validMoves.add(new Coordinate(move.row, move.col));

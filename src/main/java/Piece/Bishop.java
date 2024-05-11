@@ -51,8 +51,7 @@ public class Bishop extends Piece {
                     if(!kingInCheck(this, newRow, newCol, board)) {
                         this.validMoves.add(new Coordinate(newRow, newCol));
                     } else {
-                        this.validMoves.clear();
-                        return;
+                        break;
                     }
                 } else {
                     this.validMoves.add(new Coordinate(newRow, newCol));

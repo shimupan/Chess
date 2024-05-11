@@ -80,9 +80,6 @@ public class Pawn extends Piece {
                 if(check) {
                     if(!kingInCheck(this, move.row, move.col, board)) {
                         this.validMoves.add(move);
-                    } else {
-                        this.validMoves.clear();
-                        return;
                     }
                 } else {
                     this.validMoves.add(move);
