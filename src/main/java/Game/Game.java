@@ -68,14 +68,9 @@ public class Game extends JPanel implements Runnable {
 
             if(delta >= 1) {
                 update();
-                repaint();
                 delta--;
             }
-            try {
-                Thread.sleep(25);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+            
         }
     }
 
@@ -240,6 +235,7 @@ public class Game extends JPanel implements Runnable {
                 }
                 this.activePC = null;
                 this.activeSQ = null;
+                repaint();
             }
         }
     }
@@ -272,6 +268,7 @@ public class Game extends JPanel implements Runnable {
             this.canMove = false;
             this.validSquare = false;
         }
+        repaint();
     }
 
     private void swapTurn() {
