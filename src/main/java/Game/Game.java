@@ -52,6 +52,11 @@ public class Game extends JPanel implements Runnable {
         addMouseListener(mouse);
         addMouseMotionListener(mouse);
     }
+
+    public void start() {
+        gameThread = new Thread(this);
+        gameThread.start();
+    }
     
     // Game Loop
     @Override
@@ -67,16 +72,16 @@ public class Game extends JPanel implements Runnable {
             prevTime = currTime;
 
             if(delta >= 1) {
+                sleep(15);
                 update();
                 delta--;
             }
-            
         }
     }
 
     @Override
     public void paintComponent(Graphics g) {
-        super.paintComponent(getGraphics());
+        super.paintComponent( g );
 
         Graphics2D g2 = (Graphics2D) g;
 
@@ -155,11 +160,6 @@ public class Game extends JPanel implements Runnable {
             
         }
 
-    }
-
-    public void start() {
-        gameThread = new Thread(this);
-        gameThread.start();
     }
 
     private void update() {
@@ -257,7 +257,7 @@ public class Game extends JPanel implements Runnable {
 
         this.activePC.col = activePC.getCol(activePC.x);
         this.activePC.row = activePC.getCol(activePC.y);
-
+        repaint();
         // Checking if valid move
         this.activePC.getValidMoves(board, true);
         if (this.activePC.validMoves.contains(new Coordinate(this.activePC.row, this.activePC.col))) {
@@ -268,7 +268,6 @@ public class Game extends JPanel implements Runnable {
             this.canMove = false;
             this.validSquare = false;
         }
-        repaint();
     }
 
     private void swapTurn() {
@@ -283,6 +282,14 @@ public class Game extends JPanel implements Runnable {
             } else {
                 Piece.castlePC.col -= 2;
             }
+        }
+    }
+
+    private void sleep(int ms) {
+        try {
+            Thread.sleep(ms);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
     }
 }
