@@ -20,7 +20,7 @@ public class Board {
         rep = new Square[CONSTANTS.ROWS][CONSTANTS.COLS];
         initBoard();
         setPieces(0); setPieces(1);
-        rep[1][3] = new Square(1, 3, new Pawn(CONSTANTS.WHITE, 1, 3));
+        //rep[1][3] = new Square(1, 3, new Pawn(CONSTANTS.WHITE, 1, 3));
     }
 
     public Board(Board other) {
@@ -47,9 +47,14 @@ public class Board {
                             row*CONSTANTS.SQSIZE, 
                             CONSTANTS.SQSIZE, 
                             CONSTANTS.SQSIZE);
+                Square currSquare = rep[row][col];
+                if(currSquare.containsPiece()) {
+                    currSquare.getPiece().draw( g2 );
+                }
             }
         }
     }
+    
 
     public Square getSquare(int row, int col) {
         if(!Piece.inBound(row, col)) return null;
@@ -80,16 +85,16 @@ public class Board {
         int row_other = (color == CONSTANTS.WHITE) ? 7 : 0;
 
         // Setting Pawns
-        //for(int col = 0; col < CONSTANTS.COLS; col++) {
-        //    rep[row_pawn][col] = new Square(row_pawn, col, new Pawn(color, row_pawn, col));
-        //}
+        for(int col = 0; col < CONSTANTS.COLS; col++) {
+            rep[row_pawn][col] = new Square(row_pawn, col, new Pawn(color, row_pawn, col));
+        }
 
         // knights
         rep[row_other][1] = new Square(row_other, 1, new Knight(color, row_other, 1));
         rep[row_other][6] = new Square(row_other, 6, new Knight(color, row_other, 6));
 
         // bishops
-        //rep[row_other][2] = new Square(row_other, 2, new Bishop(color, row_other, 2));
+        rep[row_other][2] = new Square(row_other, 2, new Bishop(color, row_other, 2));
         rep[row_other][5] = new Square(row_other, 5, new Bishop(color, row_other, 5));
 
         // rooks

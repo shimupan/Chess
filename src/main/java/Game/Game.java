@@ -60,18 +60,21 @@ public class Game extends JPanel implements Runnable {
         double delta = 0;
         long prevTime = System.nanoTime();
         long currTime;
-
+        Sound.play("game-start");
         while(gameThread != null) {
             currTime = System.nanoTime();
             delta += (currTime - prevTime)/drawInterval;
             prevTime = currTime;
 
             if(delta >= 1) {
-                SwingUtilities.invokeLater(() -> {
-                    update();
-                    repaint();
-                });
+                update();
+                repaint();
                 delta--;
+            }
+            try {
+                Thread.sleep(25);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
         }
     }
@@ -83,16 +86,6 @@ public class Game extends JPanel implements Runnable {
         Graphics2D g2 = (Graphics2D) g;
 
         board.draw( g2 );
-
-        // Draw the pieces
-        for(int row = 0; row < CONSTANTS.ROWS; row++) {
-            for(int col = 0; col < CONSTANTS.COLS; col++) {
-                Square currSquare = board.rep[row][col];
-                if(currSquare.containsPiece() && !currSquare.getPiece().equals(this.promotionPC)) {
-                    currSquare.getPiece().draw( g2 );
-                }
-            }
-        }
 
         // Highlight the current move set
         if(this.previousMoveLocation != null && this.currentMoveLocation != null) {
