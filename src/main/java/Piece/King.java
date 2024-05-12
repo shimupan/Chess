@@ -65,10 +65,12 @@ public class King extends Piece {
             new Coordinate(this.prevRow-1, this.prevCol+0), // up
             new Coordinate(this.prevRow-1, this.prevCol+1), // up-right
             new Coordinate(this.prevRow+0, this.prevCol+1), // right
+            new Coordinate(this.prevRow+0, this.prevCol+2), // right castle
             new Coordinate(this.prevRow+1, this.prevCol+1), // down-right
             new Coordinate(this.prevRow+1, this.prevCol+0), // down
             new Coordinate(this.prevRow+1, this.prevCol-1), // down-left
             new Coordinate(this.prevRow+0, this.prevCol-1), // left
+            new Coordinate(this.prevRow+0, this.prevCol-2), // left castle
             new Coordinate(this.prevRow-1, this.prevCol-1)  // up-left
         );
         for(Coordinate c: directions) {

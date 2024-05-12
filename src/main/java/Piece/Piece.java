@@ -55,14 +55,37 @@ public abstract class Piece {
         this.moved = other.moved;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if(!(o instanceof Piece)) return false;
+        Piece p = (Piece) o;
+        return super.equals(p);
+    }
+
+    @Override
+    public int hashCode() {
+        return super.hashCode();
+    }
+
+    @Override
+        public String toString() {
+            return "Piece{" +
+                    "color=" + (color == CONSTANTS.WHITE ? "White" : "Black") +
+                    ", type=" + getClass().getSimpleName() +
+                    ", row=" + row +
+                    ", col=" + col +
+                    ", moved=" + moved +
+                    '}';
+        }
+
     public void draw(Graphics2D g2) {
         int drawX = this.x;
         int drawY = this.y;
     
         // Ensure the piece is not drawn outside the intended area
-        if (drawX + CONSTANTS.SQSIZE > 800) {
-            drawX = 800 - CONSTANTS.SQSIZE;
-        }
+        // if (drawX + CONSTANTS.SQSIZE > 800) {
+        //     drawX = 800 - CONSTANTS.SQSIZE;
+        // }
     
         g2.drawImage(img, drawX, drawY, CONSTANTS.SQSIZE, CONSTANTS.SQSIZE, null);
     }

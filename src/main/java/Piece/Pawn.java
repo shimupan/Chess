@@ -39,9 +39,9 @@ public class Pawn extends Piece {
         } 
         
         if(isOneSquareAheadEmpty && targetCol == this.prevCol && 
-        targetRow == this.prevRow + (direction*2) && 
-        p == null && 
-        !this.moved) { // 2 Square Movement
+           targetRow == this.prevRow + (direction*2) && 
+           p == null && 
+           !this.moved) { // 2 Square Movement
             return true;
         }
         // Capture Diagonal
@@ -55,7 +55,7 @@ public class Pawn extends Piece {
         if(Math.abs(targetCol - this.prevCol) == 1 && 
            targetRow == this.prevRow + direction) {
             for(Piece ep: enpassantPieces) {
-                if(ep.col == targetCol) {
+                if(ep.col == targetCol && ep.color != this.color) {
                     return true;
                 }
             }
