@@ -45,7 +45,7 @@ public class Rook extends Piece {
             int newRow = this.prevRow + direction.row;
             int newCol = this.prevCol + direction.col;
 
-            while (inBound(newRow, newCol) && canMove(newRow, newCol, board)) {
+            while (canMove(newRow, newCol, board)) {
                 if(check) {
                     if(!kingInCheck(this, newRow, newCol, board)) {
                         this.validMoves.add(new Coordinate(newRow, newCol));

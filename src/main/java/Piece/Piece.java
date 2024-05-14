@@ -11,10 +11,7 @@ import javax.imageio.ImageIO;
 
 import Game.Board;
 import Game.Square;
-import Util.CONSTANTS;
-import Util.Coordinate;
-import Util.Sound;
-import Util.Type;
+import Util.*;
 
 public abstract class Piece {
 
@@ -45,14 +42,7 @@ public abstract class Piece {
     }
 
     public Piece(Piece other) {
-        this.color = other.color;
-        this.row = other.row;
-        this.col = other.col;
-        this.prevCol = other.col;
-        this.prevRow = other.row;
-        this.x = other.x;
-        this.y = other.y;
-        this.moved = other.moved;
+        Piece.copy(other, this);
     }
 
     @Override
@@ -68,15 +58,50 @@ public abstract class Piece {
     }
 
     @Override
-        public String toString() {
-            return "Piece{" +
-                    "color=" + (color == CONSTANTS.WHITE ? "White" : "Black") +
-                    ", type=" + getClass().getSimpleName() +
-                    ", row=" + row +
-                    ", col=" + col +
-                    ", moved=" + moved +
-                    '}';
+    public String toString() {
+        return "Piece{" +
+                "color=" + (color == CONSTANTS.WHITE ? "White" : "Black") +
+                ", type=" + getClass().getSimpleName() +
+                ", row=" + row +
+                ", col=" + col +
+                ", moved=" + moved +
+                '}';
+    }
+
+    public static Coordinate getKingPosByColor(int color) {
+        return (color == CONSTANTS.WHITE) ? 
+               new Coordinate(kingPos[0].row, kingPos[0].col): 
+               new Coordinate(kingPos[1].row, kingPos[1].col);
+    }
+
+    public static boolean putKingInCheck(Piece p, Board board) {
+        boolean check = false;
+        int tempRow = p.prevRow;
+        int tempCol = p.prevCol;
+        p.prevRow = p.row;
+        p.prevCol = p.col;
+        p.getValidMoves(board, false);
+        int opponentColor = (p.color == CONSTANTS.WHITE) ? CONSTANTS.BLACK : CONSTANTS.WHITE;
+        if(p.validMoves.contains(Piece.getKingPosByColor(opponentColor))) {
+            check = true;
         }
+
+        p.prevRow = tempRow;
+        p.prevCol = tempCol;
+
+        return check;
+    }
+
+    public static void copy(Piece src, Piece dest) {
+        dest.color = src.color;
+        dest.row = src.row;
+        dest.col = src.col;
+        dest.prevCol = src.col;
+        dest.prevRow = src.row;
+        dest.x = src.x;
+        dest.y = src.y;
+        dest.moved = src.moved;
+    }
 
     public void draw(Graphics2D g2) {
         int drawX = this.x;
@@ -256,13 +281,14 @@ public abstract class Piece {
     }
 
     public boolean kingInCheck(Piece p, int targetRow, int targetCol, Board board) {
+        boolean print = false;
         // Create a deep copy of the board
         Board boardCopy = new Board(board);
-
+        
         // Simulate the move on the copied board
         boardCopy.getSquare(targetRow, targetCol).updatePiece(p);
         boardCopy.getSquare(this.prevRow, this.prevCol).updatePiece(null);
-
+        if(print) { System.out.println(boardCopy); }
         // Find the king's position
         Coordinate kingCoordinate = Piece.getKingPosByColor(p.color);
 
@@ -308,11 +334,5 @@ public abstract class Piece {
 
     public int getCol(int x) {
         return (x + (CONSTANTS.SQSIZE/2) ) / CONSTANTS.SQSIZE;
-    }
-
-    public static Coordinate getKingPosByColor(int color) {
-        return (color == CONSTANTS.WHITE) ? 
-               new Coordinate(kingPos[0].row, kingPos[0].col): 
-               new Coordinate(kingPos[1].row, kingPos[1].col);
     }
 }

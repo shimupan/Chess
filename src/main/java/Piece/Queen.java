@@ -28,6 +28,7 @@ public class Queen extends Piece {
 
         if(targetCol == this.prevCol || targetRow == this.prevRow) 
         return (validSquare(targetRow, targetCol, board) && !pieceOnStraightLine(targetRow, targetCol, board));
+        
 
         if(Math.abs(targetCol - this.prevCol) == Math.abs(targetRow - prevRow)) 
         return (validSquare(targetRow, targetCol, board) && !pieceOnDiagonalLine(targetRow, targetCol, board));

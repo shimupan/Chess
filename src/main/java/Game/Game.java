@@ -6,20 +6,13 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.util.ArrayList;
 
 import javax.swing.JPanel;
-import javax.swing.SwingUtilities;
 
-import Controls.Mouse;
-import Piece.Bishop;
-import Piece.Knight;
-import Piece.Piece;
-import Piece.Queen;
-import Piece.Rook;
-import Util.CONSTANTS;
-import Util.Coordinate;
-import Util.Sound;
-import Util.Type;
+import Controls.*;
+import Piece.*;
+import Util.*;
 
 public class Game extends JPanel implements Runnable {
 
@@ -30,6 +23,7 @@ public class Game extends JPanel implements Runnable {
     private Square activeSQ = null;
     private Piece activePC = null;
     private Piece promotionPC = null;
+    private ArrayList<Piece> promoPCLst = new ArrayList<>(4);
 
     private Square hoveredSquare = null;
     private Square previousMoveLocation = null;
@@ -157,14 +151,53 @@ public class Game extends JPanel implements Runnable {
         }
 
         if(this.promotionPC != null) {
-            
+            for (int i = 0; i <= 3; i++) {
+                int offset = (this.promotionPC.color == CONSTANTS.WHITE) ? i : -i;
+                Piece tempPiece;
+                switch (i) {
+                    case 0:
+                        tempPiece = new Queen(this.currColor, this.promotionPC.row + offset, this.promotionPC.col);
+                        break;
+                    case 1:
+                        tempPiece = new Rook(this.currColor, this.promotionPC.row + offset, this.promotionPC.col);
+                        break;
+                    case 2:
+                        tempPiece = new Bishop(this.currColor, this.promotionPC.row + offset, this.promotionPC.col);
+                        break;
+                    case 3:
+                        tempPiece = new Knight(this.currColor, this.promotionPC.row + offset, this.promotionPC.col);
+                        break;
+                    default:
+                        continue;
+                }
+                g2.setColor(Color.WHITE);
+                g2.fillRect(tempPiece.getX(tempPiece.col), tempPiece.getY(tempPiece.row), CONSTANTS.SQSIZE, CONSTANTS.SQSIZE);
+                g2.drawImage(tempPiece.img, tempPiece.getX(tempPiece.col), tempPiece.getY(tempPiece.row), CONSTANTS.SQSIZE, CONSTANTS.SQSIZE, null);
+                promoPCLst.add(i, tempPiece);
+            }
         }
 
     }
 
     private void update() {
         if(this.promotionPC != null) {
-            System.out.println("Choose a piece");
+            if(mouse.pressed && mouse.x <= 800) {
+                int clicked_row = mouse.y/CONSTANTS.SQSIZE;
+                int clicked_col = mouse.x/CONSTANTS.SQSIZE;
+
+                for (Piece pc : promoPCLst) {
+                    if (pc.row == clicked_row && pc.col == clicked_col) {
+                        // Promotion piece was clicked, handle accordingly
+                        board.handlePromotion(this.promotionPC.row, this.promotionPC.col, pc);
+                        this.promotionPC = null;
+                        promoPCLst.clear();
+                        swapTurn();
+                        repaint();
+                        break;
+                    }
+                }
+
+            }
             return;
         }
         // Mouse Press
@@ -172,7 +205,7 @@ public class Game extends JPanel implements Runnable {
             if(this.activeSQ == null || this.activePC == null) { // No square selected
                 int clicked_row = mouse.y/CONSTANTS.SQSIZE;
                 int clicked_col = mouse.x/CONSTANTS.SQSIZE;
-                this.activeSQ = board.rep[clicked_row][clicked_col];
+                this.activeSQ = board.getSquare(clicked_row, clicked_col);
                 // Square has a piece on it and the piece is the curr turn
                 if(this.activeSQ.containsPiece() && 
                 this.activeSQ.getPiece().color == currColor) {
@@ -191,7 +224,7 @@ public class Game extends JPanel implements Runnable {
             if(this.activePC != null) {
                 if (this.validSquare) {
 
-                    boolean castle = false;
+                    boolean castle = false, check = false;
 
                     // Update moved piece
                     this.activePC.updatePos(this.board);
@@ -214,20 +247,30 @@ public class Game extends JPanel implements Runnable {
                         Piece.castlePC = null;
                     }
 
+                    // Check the pseudo legal moves
+                    if(Piece.putKingInCheck(this.activePC, this.board)) {
+                        check = true;
+                        Sound.play("move-check");
+                    }
+
                     // en-passant
                     if (clearEnPassantNextTurn) {
                         Piece.enpassantPieces.clear();
                     }
                     clearEnPassantNextTurn = !Piece.enpassantPieces.isEmpty();
+                    
+                    // sound for normal move if no castle
+                    if(!castle && !check) Sound.play("move-self");
 
-                    if(!castle) Sound.play("move-self");
-
+                    // Check if the move moved the pawn 
                     if(Type.isPawn(this.activePC)) {
                         int promotionRank = this.activePC.color == CONSTANTS.WHITE ? 0 : 7;
                         if(this.activePC.row == promotionRank) {
                             this.promotionPC = this.activePC;
                         }
                     }
+
+                    // Promotion
                     if (this.promotionPC == null) { swapTurn(); }
                 } else {
                     Sound.play("illegal");

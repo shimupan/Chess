@@ -23,8 +23,7 @@ public class Knight extends Piece {
 
     @Override
     public boolean canMove(int targetRow, int targetCol, Board board) {
-        return ( inBound(targetRow,targetCol) &&
-                 (canMoveInL(targetCol, this.prevCol, targetRow, this.prevRow) ) &&
+        return ( inBound(targetRow,targetCol)  &&
                   validSquare(targetRow, targetCol, board) );
     }
 
@@ -53,10 +52,6 @@ public class Knight extends Piece {
                 }
             }
         }
-    }
-
-    private boolean canMoveInL(int x1, int x2, int y1, int y2) {
-        return ( (Math.abs(x1 - x2) * Math.abs(y1 - y2) ) == 2 );
     }
 
 }

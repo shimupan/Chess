@@ -1,6 +1,8 @@
 package Util;
 
-public class CONSTANTS {
+public final class CONSTANTS {
+
+    private CONSTANTS() {}
 
     // Screen Dimension
     public static final int WIDTH = 1100; // 800 + 300

@@ -3,14 +3,9 @@ package Game;
 import java.awt.Color;
 import java.awt.Graphics2D;
 
-import Piece.Bishop;
-import Piece.King;
-import Piece.Knight;
-import Piece.Pawn;
-import Piece.Piece;
-import Piece.Queen;
-import Piece.Rook;
+import Piece.*;
 import Util.CONSTANTS;
+import Util.Type;
 
 public class Board {
 
@@ -20,7 +15,7 @@ public class Board {
         rep = new Square[CONSTANTS.ROWS][CONSTANTS.COLS];
         initBoard();
         setPieces(0); setPieces(1);
-        //rep[1][3] = new Square(1, 3, new Pawn(CONSTANTS.WHITE, 1, 3));
+        rep[1][3] = new Square(1, 3, new Pawn(CONSTANTS.WHITE, 1, 3));
     }
 
     public Board(Board other) {
@@ -30,6 +25,48 @@ public class Board {
                 this.rep[row][col] = new Square(other.rep[row][col]);
             }
         }
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+
+        // Print column numbers
+        sb.append("\n");
+        sb.append("  ");
+        for (int col = 0; col < CONSTANTS.COLS; col++) {
+            sb.append(col).append(" ");
+        }
+        sb.append("\n");
+
+        for (int row = 0; row < CONSTANTS.ROWS; row++) {
+            // Print row number
+            sb.append(row).append(" ");
+
+            for (int col = 0; col < CONSTANTS.COLS; col++) {
+                if (rep[row][col].containsPiece()) {
+                    Piece piece = rep[row][col].getPiece();
+                    if (Type.isPawn(piece)) {
+                        sb.append("P ");
+                    } else if (Type.isQueen(piece)) {
+                        sb.append("Q ");
+                    } else if (Type.isKing(piece)) {
+                        sb.append("K ");
+                    } else if (Type.isRook(piece)) {
+                        sb.append("R ");
+                    } else if (Type.isBishop(piece)) {
+                        sb.append("B ");
+                    } else if (Type.isKnight(piece)) {
+                        sb.append("N ");
+                    }
+                } else {
+                    sb.append(". ");
+                }
+            }
+            sb.append("\n");
+        }
+
+        return sb.toString();
     }
 
     // Renders the Board
@@ -106,5 +143,10 @@ public class Board {
 
         // king
         rep[row_other][4] = new Square(row_other, 4, new King(color, row_other, 4));
+    }
+
+    public void handlePromotion(int row, int col, Piece promoPiece) {
+        Piece.copy(this.getPiece(row, col), promoPiece);
+        this.getSquare(row, col).updatePiece(promoPiece);
     }
 }

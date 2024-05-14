@@ -1,12 +1,6 @@
 package Game;
 
-import Piece.Bishop;
-import Piece.King;
-import Piece.Knight;
-import Piece.Pawn;
-import Piece.Piece;
-import Piece.Queen;
-import Piece.Rook;
+import Piece.*;
 
 public class Square {
 
