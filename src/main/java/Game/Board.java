@@ -106,8 +106,12 @@ public class Board {
                     } else if(Type.isKing(piece)) { // store king pos
                         if(piece.color == CONSTANTS.WHITE) {
                             Piece.kingPos[0] = piece;
+                            boolean hasMoved = !parts[2].contains("K");
+                            piece.moved = hasMoved;
                         } else {
                             Piece.kingPos[1] = piece;
+                            boolean hasMoved = !parts[2].contains("k");
+                            piece.moved = hasMoved;
                         }
                     } else if(Type.isRook(piece)) { // check rooks castling rights
                         boolean hasMoved = ((piece.color == CONSTANTS.WHITE) && ((piece.col == 0 && !parts[2].contains("Q")) || (piece.col == 7 && !parts[2].contains("K"))))

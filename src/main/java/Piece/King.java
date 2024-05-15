@@ -36,21 +36,18 @@ public class King extends Piece {
 
         // right castling
         if(targetCol == this.prevCol + 2 && !pieceOnStraightLine(targetRow, targetCol, board)) {
-            if(board.getPiece(this.prevRow, this.prevCol+3) != null && 
-               !board.getPiece(this.prevRow, this.prevCol+3).moved) {
-                Piece.castlePC = board.getPiece(this.prevRow, this.prevCol+3);
-
+            Piece rightRook = board.getPiece(this.prevRow, this.prevCol+3);
+            if(rightRook != null && !rightRook.moved) {
+                Piece.castlePC = rightRook;
                 return true;
             }
         }
 
         // left castle
         if(targetCol == this.prevCol - 2 && !pieceOnStraightLine(targetRow, targetCol, board)) {
-            if(board.getPiece(this.prevRow, this.prevCol+3) != null && 
-               !board.getPiece(this.prevRow, this.prevCol-4).moved && 
-               !board.containsPiece(this.prevRow, this.prevCol-3)) {
-                
-                Piece.castlePC = board.getPiece(this.prevRow, this.prevCol-4);
+            Piece leftRook = board.getPiece(this.prevRow, this.prevCol-4);
+            if(leftRook != null && !leftRook.moved && !board.containsPiece(this.prevRow, this.prevCol-3)) {
+                Piece.castlePC = leftRook;
                 return true;
             }
         }

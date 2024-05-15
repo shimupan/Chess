@@ -10,7 +10,9 @@ public class Main {
         window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         window.setResizable(false);
 
-        Game g = new Game();
+        Game g = Game.getInstance();
+        g.init("");
+        
         window.add(g);
         window.pack();
 
