@@ -5,6 +5,7 @@ import java.awt.Graphics2D;
 
 import Piece.*;
 import Util.CONSTANTS;
+import Util.Coordinate;
 import Util.Type;
 
 public class Board {
@@ -15,7 +16,6 @@ public class Board {
         rep = new Square[CONSTANTS.ROWS][CONSTANTS.COLS];
         initBoard();
         setPieces(0); setPieces(1);
-        rep[1][3] = new Square(1, 3, new Pawn(CONSTANTS.WHITE, 1, 3));
     }
 
     public Board(Board other) {
@@ -25,6 +25,12 @@ public class Board {
                 this.rep[row][col] = new Square(other.rep[row][col]);
             }
         }
+    }
+
+    public static Coordinate algebraicToSquare(String algebraic) {
+        int row = algebraic.charAt(1) - '1';
+        int col = algebraic.charAt(0) - 'a';
+        return new Coordinate(row, col);
     }
 
     @Override
@@ -67,6 +73,64 @@ public class Board {
         }
 
         return sb.toString();
+    }
+
+    public String[] loadFEN(String fen) {
+        String[] parts = fen.split(" ");
+        String[] ranks = parts[0].split("/");
+    
+        // Clear the board
+        initBoard();
+    
+        for (int i = 0; i < CONSTANTS.ROWS; i++) {
+            int col = 0;
+            for (char c : ranks[7 - i].toCharArray()) { // FEN starts from rank 8
+                if (Character.isDigit(c)) {
+                    col += Character.getNumericValue(c); // Skip empty squares
+                } else {
+                    int color = Character.isLowerCase(c) ? CONSTANTS.BLACK : CONSTANTS.WHITE;
+                    Piece piece;
+                    switch (Character.toLowerCase(c)) {
+                        case 'p': piece = new Pawn(color, 7 - i, col); break;
+                        case 'n': piece = new Knight(color, 7 - i, col); break;
+                        case 'b': piece = new Bishop(color, 7 - i, col); break;
+                        case 'r': piece = new Rook(color, 7 - i, col); break;
+                        case 'q': piece = new Queen(color, 7 - i, col); break;
+                        case 'k': piece = new King(color, 7 - i, col); break;
+                        default: throw new IllegalArgumentException("Invalid FEN string");
+                    }
+                    
+                    if(Type.isPawn(piece)) { // If the pawn has moved, it cannot do en passant
+                        boolean hasMoved = (piece.color == CONSTANTS.WHITE && piece.row != 6) || (piece.color == CONSTANTS.BLACK && piece.row != 1);
+                        piece.moved = hasMoved;
+                    } else if(Type.isKing(piece)) { // store king pos
+                        if(piece.color == CONSTANTS.WHITE) {
+                            Piece.kingPos[0] = piece;
+                        } else {
+                            Piece.kingPos[1] = piece;
+                        }
+                    } else if(Type.isRook(piece)) { // check rooks castling rights
+                        boolean hasMoved = ((piece.color == CONSTANTS.WHITE) && ((piece.col == 0 && !parts[2].contains("Q")) || (piece.col == 7 && !parts[2].contains("K"))))
+                        || ((piece.color == CONSTANTS.BLACK) && ((piece.col == 0 && !parts[2].contains("q")) || (piece.col == 7 && !parts[2].contains("k"))));
+                        piece.moved = hasMoved;
+                    }
+
+                    rep[7 - i][col] = new Square(7 - i, col, piece);
+                    col++;
+                }
+            }
+        }
+        
+        Coordinate enPassCoordinate = parts[3].equals("-") ? null : Board.algebraicToSquare(parts[3]);
+
+        
+        if(enPassCoordinate != null) {
+            // Set en passant target square
+            Piece enPassantPC = this.getPiece(enPassCoordinate.row, enPassCoordinate.col);
+            Piece.enpassantPieces.add(enPassantPC);
+        }
+        
+        return parts;
     }
 
     // Renders the Board

@@ -30,6 +30,8 @@ public class Game extends JPanel implements Runnable {
     private Square currentMoveLocation = null;
     
     private int currColor = CONSTANTS.WHITE;
+    private int halfmoveClock = 0;
+    private int moves = 1;
     private boolean canMove = false;
     private boolean validSquare = false;
     private boolean clearEnPassantNextTurn = false;
@@ -39,12 +41,18 @@ public class Game extends JPanel implements Runnable {
         setBackground(Color.BLACK);
 
         board = new Board();
-        Piece.kingPos[0] = board.getPiece(7,4); // white
-        Piece.kingPos[1] = board.getPiece(0,4); // black
-
+        this.init("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
         mouse = new Mouse();
         addMouseListener(mouse);
         addMouseMotionListener(mouse);
+    }
+
+    private void init(String fen) {
+        String[] gameState = board.loadFEN(fen);
+        this.currColor = gameState[1].equals("w") ? CONSTANTS.WHITE : CONSTANTS.BLACK;
+        
+        this.halfmoveClock = Integer.parseInt(gameState[4]);
+        this.moves = Integer.parseInt(gameState[5]);
     }
 
     public void start() {
@@ -150,6 +158,7 @@ public class Game extends JPanel implements Runnable {
             this.activePC.draw(g2);
         }
 
+        // handle promotion
         if(this.promotionPC != null) {
             for (int i = 0; i <= 3; i++) {
                 int offset = (this.promotionPC.color == CONSTANTS.WHITE) ? i : -i;
