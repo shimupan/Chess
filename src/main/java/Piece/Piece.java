@@ -26,6 +26,8 @@ public abstract class Piece {
     public static Piece castlePC;
     public static Piece[] kingPos = new Piece[2];
     public static Set<Piece> enpassantPieces = new HashSet<>();
+    public static Set<Piece> WhitePieces = new HashSet<>();
+    public static Set<Piece> BlackPieces = new HashSet<>();
 
     public abstract boolean canMove(int targetRow, int targetCol, Board board);
     public abstract void getValidMoves(Board board, boolean check);
@@ -132,6 +134,10 @@ public abstract class Piece {
         this.y = getY(row);
         this.col = getCol(x);
         this.row = getRow(y);
+
+        // Sound Playing
+        Boolean enpassantSound = false;
+        Boolean castleSound = false;
         
         // If its a pawn 
         if(Type.isPawn(this)) {
@@ -150,10 +156,23 @@ public abstract class Piece {
                     capturedSquare.getPiece() != null && 
                     Type.isPawn(capturedSquare.getPiece())) {
                         
-                    capturedSquare.updatePiece(null);
                     Sound.play("capture");
+                    enpassantSound = true;
+
+                    if (capturedSquare.getPiece().color == CONSTANTS.WHITE) {
+                        WhitePieces.remove(capturedSquare.getPiece());
+                    } else {
+                        BlackPieces.remove(capturedSquare.getPiece());
+                    }
+                    capturedSquare.updatePiece(null);
                 }
             }
+        }
+
+        // castle
+        if(Piece.castlePC != null) {
+            Sound.play("castle");
+            castleSound = true;
         }
 
         // Update the Squares Effected
@@ -162,8 +181,19 @@ public abstract class Piece {
         
         if(Dest.equals(Prev)) return;
 
-        if(Dest.containsPiece()) Sound.play("capture");
-
+        if(!enpassantSound && !castleSound) {
+            if(Dest.containsPiece()) {
+                Sound.play("capture");
+                if (Dest.getPiece().color == CONSTANTS.WHITE) {
+                    WhitePieces.remove(Dest.getPiece());
+                } else {
+                    BlackPieces.remove(Dest.getPiece());
+                }
+            } else {
+                Sound.play("move-self");
+            }
+        }
+        
         Dest.updatePiece(Prev.getPiece());
         Prev.updatePiece(null);
         
@@ -299,17 +329,30 @@ public abstract class Piece {
 
         // Check if the king is in check
         boolean check = false;
-        for (int row = 0; row < CONSTANTS.ROWS; row++) {
-            for (int col = 0; col < CONSTANTS.COLS; col++) {
-                Piece pi = boardCopy.getPiece(row, col);
-                if (pi != null && pi.color != p.color) {
-                    pi.getValidMoves(boardCopy, false);
-                    for (Coordinate c : pi.validMoves) {
-                        if (c.equals(kingCoordinate)) {
-                            check = true;
-                            break;
-                        }
-                    }
+        Set<Piece> opponentPieces = (p.color == CONSTANTS.WHITE) ? BlackPieces : WhitePieces;
+        for (Piece pi : opponentPieces) {
+
+            // Make a copy of the curr piece
+            Piece tmp = null;
+            if (pi instanceof Pawn) {
+                tmp = new Pawn((Pawn) pi);
+            } else if (pi instanceof Rook) {
+                tmp = new Rook((Rook) pi);
+            } else if (pi instanceof Knight) {
+                tmp = new Knight((Knight) pi);
+            } else if (pi instanceof Bishop) {
+                tmp = new Bishop((Bishop) pi);
+            } else if (pi instanceof Queen) {
+                tmp = new Queen((Queen) pi);
+            } else if (pi instanceof King) {
+                tmp = new King((King) pi);
+            }
+            
+            tmp.getValidMoves(boardCopy, false);
+            for (Coordinate c : tmp.validMoves) {
+                if (c.equals(kingCoordinate)) {
+                    check = true;
+                    break;
                 }
             }
             if (check) {

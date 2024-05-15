@@ -76,6 +76,9 @@ public class Board {
     }
 
     public String[] loadFEN(String fen) {
+        Piece.WhitePieces.clear();
+        Piece.BlackPieces.clear();
+
         String[] parts = fen.split(" ");
         String[] ranks = parts[0].split("/");
     
@@ -117,6 +120,12 @@ public class Board {
                         boolean hasMoved = ((piece.color == CONSTANTS.WHITE) && ((piece.col == 0 && !parts[2].contains("Q")) || (piece.col == 7 && !parts[2].contains("K"))))
                         || ((piece.color == CONSTANTS.BLACK) && ((piece.col == 0 && !parts[2].contains("q")) || (piece.col == 7 && !parts[2].contains("k"))));
                         piece.moved = hasMoved;
+                    }
+                    
+                    if(piece.color == CONSTANTS.WHITE) {
+                        Piece.WhitePieces.add(piece);
+                    } else {
+                        Piece.BlackPieces.add(piece);
                     }
 
                     rep[7 - i][col] = new Square(7 - i, col, piece);

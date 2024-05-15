@@ -7,6 +7,7 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.util.ArrayList;
+import java.util.Set;
 
 import javax.swing.JPanel;
 
@@ -24,15 +25,22 @@ public class Game extends JPanel implements Runnable {
     private Board AIBoard;
 
     public Mouse mouse;
+
     public Piece promotionPC = null;
     public ArrayList<Piece> promoPCLst = new ArrayList<>(4);
+
     public int currColor = CONSTANTS.WHITE;
+
     public Piece activePC = null;
     public Square hoveredSquare = null;
     public Square previousMoveLocation = null;
     public Square currentMoveLocation = null;
+    public Square activeSQ = null;
+    
     public boolean clearEnPassantNextTurn = false;
+    
     public boolean canMove = false;
+    public boolean validSquare = false;
 
     private int halfmoveClock = 0;
     private int moves = 1;
@@ -52,7 +60,7 @@ public class Game extends JPanel implements Runnable {
         setBackground(Color.BLACK);
     }
 
-    public void init(String fen) {
+    public void init(String fen, Enums.PlayerType PlayerTypeWhite, Enums.PlayerType PlayerTypeBlack) {
         this.board = new Board();
         this.AIBoard = new Board(this.board);
         this.mouse = new Mouse();
@@ -68,8 +76,17 @@ public class Game extends JPanel implements Runnable {
         this.halfmoveClock = Integer.parseInt(gameState[4]);
         this.moves = Integer.parseInt(gameState[5]);
 
-        this.white = new Human(this.board);
-        this.black = new AI(this.board, this.AIBoard);
+        if(PlayerTypeWhite == Enums.PlayerType.Human) {
+            this.white = new Human(this.board);
+        } else if (PlayerTypeWhite == Enums.PlayerType.AI) {
+            this.white = new AI(this.board, this.AIBoard);
+        }
+        
+        if(PlayerTypeBlack == Enums.PlayerType.Human) {
+            this.black = new Human(this.board);
+        } else if (PlayerTypeBlack == Enums.PlayerType.AI) {
+            this.black = new AI(this.board, this.AIBoard);
+        }
     }
 
     public void start() {
@@ -94,11 +111,8 @@ public class Game extends JPanel implements Runnable {
                 sleep(15);
 
                 Player p = getCurrPlayer();
-                if(currPlayerIsHuman()) {
-                    p.update();
-                } else {
-                    p.makeMove();
-                }
+                p.makeMove();
+                
                 delta--;
             }
         }
@@ -182,7 +196,7 @@ public class Game extends JPanel implements Runnable {
         }
 
         // handle promotion
-        if(this.promotionPC != null) {
+        if(this.promotionPC != null && currPlayerIsHuman() ) {
             for (int i = 0; i <= 3; i++) {
                 int offset = (this.promotionPC.color == CONSTANTS.WHITE) ? i : -i;
                 Piece tempPiece;
@@ -214,6 +228,88 @@ public class Game extends JPanel implements Runnable {
         this.currColor = (this.currColor == CONSTANTS.WHITE) ? CONSTANTS.BLACK : CONSTANTS.WHITE;
     }
 
+    public void handlePieceSelection(int pieceRow, int pieceCol) {
+        this.activeSQ = board.getSquare(pieceRow, pieceCol);
+        // Square has a piece on it and the piece is the curr turn
+        if(this.activeSQ.containsPiece() && 
+            this.activeSQ.getPiece().color == this.currColor) {
+            this.activePC = activeSQ.getPiece();
+            this.activePC.prevCol = this.activePC.col;
+            this.activePC.prevRow = this.activePC.row;
+            this.hoveredSquare = this.activeSQ;
+        }
+    }
+
+    public void handlePiecePlacement() {
+        if(this.validSquare) {
+            // Update moved piece
+            this.activePC.updatePos(this.board);
+            
+            // square highlighting
+            int currRow = this.activePC.getRow(this.activePC.y);
+            int currCol = this.activePC.getCol(this.activePC.x);
+            this.currentMoveLocation = board.rep[currRow][currCol];
+            
+            int prevRow = this.activePC.prevRow;
+            int prevCol = this.activePC.prevCol;
+            this.previousMoveLocation = board.rep[prevRow][prevCol];
+            this.hoveredSquare = null;
+
+            // castle
+            if(Piece.castlePC != null) {
+                Piece.castlePC.updatePos(this.board);
+                Piece.castlePC = null;
+            }
+
+            // Check the pseudo legal moves
+            if(Piece.putKingInCheck(this.activePC, this.board)) {
+                Sound.play("move-check");
+            }
+
+            // en-passant
+            if (this.clearEnPassantNextTurn) {
+                Piece.enpassantPieces.clear();
+            }
+            this.clearEnPassantNextTurn = !Piece.enpassantPieces.isEmpty();
+
+            // Check if the move moved the pawn 
+            if(Type.isPawn(this.activePC)) {
+                int promotionRank = this.activePC.color == CONSTANTS.WHITE ? 0 : 7;
+                if(this.activePC.row == promotionRank) {
+                    this.promotionPC = this.activePC;
+                }
+            }
+            // Promotion
+            if (this.promotionPC == null) { this.swapTurn(); }
+
+        } else {
+            Sound.play("illegal");
+            this.activePC.resetPos();
+        }
+        this.activePC = null;
+        this.activeSQ = null;
+        this.repaint();
+    }
+
+    public void handlePiecePromotion(int clickedRow, int clickedCol) {
+
+        Set<Piece> pcs = (this.promotionPC.color == CONSTANTS.WHITE) ? Piece.WhitePieces : Piece.BlackPieces;
+        for (Piece pc : this.promoPCLst) {
+            if (pc.row == clickedRow && pc.col == clickedCol) {
+                // Promotion piece was clicked, handle accordingly
+                this.board.handlePromotion(this.promotionPC.row, this.promotionPC.col, pc);
+                pcs.add(pc);
+                break;
+            }
+        }
+        pcs.remove(this.promotionPC);
+        this.promotionPC = null;
+        this.promoPCLst.clear();
+        this.swapTurn();
+        this.repaint();
+        return;
+    }
+    
     public void handleCastling() {
         if(Piece.castlePC != null) {
             // Check which side rook is being castled

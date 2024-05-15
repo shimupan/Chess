@@ -2,7 +2,6 @@ package Player;
 
 import Game.Board;
 import Game.Game;
-import Util.Coordinate;
 
 public abstract class Player {
 
@@ -14,7 +13,7 @@ public abstract class Player {
         this.game = Game.getInstance();
     }
     
-    public abstract Coordinate makeMove();
+    public abstract void makeMove();
 
     public void update() { }
     
