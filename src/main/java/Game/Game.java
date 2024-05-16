@@ -132,6 +132,7 @@ public class Game extends JPanel implements Runnable {
     
     private void resetGame() {
         init(initialFen, initialPlayerTypeWhite, initialPlayerTypeBlack);
+        mg.board = this.board;
         this.winner = GameState.Playing;
         promotionPC = null;
         activePC = null;
@@ -141,6 +142,11 @@ public class Game extends JPanel implements Runnable {
         previousMoveLocation = null;
         currentMoveLocation = null;
         activeSQ = null;
+        clearEnPassantNextTurn = false;
+        canMove = false;
+        validSquare = false;
+        
+        gameThread.interrupt();
     }
 
     public void start() {
@@ -164,9 +170,10 @@ public class Game extends JPanel implements Runnable {
             if(delta >= 1) {
                 sleep(15);
 
-                if(mg.currColor != this.currColor) {
+                if(mg.currColor != this.currColor && mg.board == this.board) {
                     mg.currColor = this.currColor;
                     mg.checkingPC = this.checkingPC;
+                    mg.moveCount = 0;
                     GameState gs = mg.checkGameState();
                     if(gs == GameState.Checkmate) {
                         this.winner = (currColor == CONSTANTS.WHITE) ? GameState.BlackWin : GameState.WhiteWin;

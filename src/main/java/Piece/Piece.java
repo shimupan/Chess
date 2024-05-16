@@ -105,6 +105,17 @@ public abstract class Piece {
         dest.moved = src.moved;
     }
 
+    public static void swapPositionValues(Piece p) {
+        if(p == null) return;
+        
+        int tmpRow = p.row;
+        int tmpCol = p.col;
+        p.row = p.prevRow;
+        p.col = p.prevCol;
+        p.prevCol = tmpCol;
+        p.prevRow = tmpRow;
+    }
+
     public void draw(Graphics2D g2) {
         int drawX = this.x;
         int drawY = this.y;

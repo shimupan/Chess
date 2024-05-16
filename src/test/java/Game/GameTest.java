@@ -81,7 +81,7 @@ public class GameTest {
 
     @Test
     public void StaleMateTest() {
-        g.init("k2K4/7Q/8/8/8/8/8/8 w - - 0 1", Human, Human);
+        g.init("4Q3/3N4/8/k3K3/5Q2/8/8/5Q2 w - - 0 1", Human, Human);
         g.start();
         window.setVisible(true);
         sleep(60000);

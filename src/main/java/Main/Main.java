@@ -10,6 +10,7 @@ import Game.Game;
 import Util.CONSTANTS;
 import Util.Enums.PlayerType;;
 
+
 public class Main {
 
     public static JButton resetButton;
@@ -22,7 +23,7 @@ public class Main {
         layeredPane.setPreferredSize(new Dimension(CONSTANTS.WIDTH, CONSTANTS.HEIGHT));
     
         Game g = Game.getInstance();
-        g.init("k2K4/7Q/8/8/8/8/8/8 w - - 0 1", PlayerType.Human, PlayerType.Human);
+        g.init("", PlayerType.AI, PlayerType.AI);
         g.initGUI();
         g.setBounds(0, 0, 800, 800);
     

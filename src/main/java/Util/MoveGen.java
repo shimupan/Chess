@@ -40,7 +40,9 @@ public class MoveGen {
         Set<Piece> currPieceSet = (this.currColor == CONSTANTS.WHITE) ? Piece.WhitePieces : Piece.BlackPieces;
         
         for(Piece pc: currPieceSet) {
+            Piece.swapPositionValues(pc);
             pc.getValidMoves(board, true);
+            Piece.swapPositionValues(pc);
             moveCount += pc.validMoves.size();
         }
     }
@@ -49,8 +51,10 @@ public class MoveGen {
         // Check if the king can move
         Coordinate kPos = Piece.getKingPosByColor(currColor);
         Piece k = this.board.getPiece(kPos.row, kPos.col);
+        Piece.swapPositionValues(k);
         k.getValidMoves(board, true);
         moveCount += k.validMoves.size();
+        Piece.swapPositionValues(k);
     }
     
 }
