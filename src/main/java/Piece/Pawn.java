@@ -55,7 +55,7 @@ public class Pawn extends Piece {
         if(Math.abs(targetCol - this.prevCol) == 1 && 
            targetRow == this.prevRow + direction) {
             for(Piece ep: enpassantPieces) {
-                if(ep.col == targetCol && ep.color != this.color) {
+                if(ep != null && ep.col == targetCol && ep.color != this.color) {
                     return true;
                 }
             }

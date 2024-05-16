@@ -4,49 +4,66 @@ import java.awt.AlphaComposite;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.Set;
 
 import javax.swing.JPanel;
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
 
 import Controls.*;
+import Main.Main;
 import Piece.*;
 import Player.*;
 import Util.*;
+import Util.Enums.GameState;
+import Util.Enums.PlayerType;;
 
 public class Game extends JPanel implements Runnable {
 
     private static Game instance = null;
 
+    private String initialFen;
+    private PlayerType initialPlayerTypeWhite;
+    private PlayerType initialPlayerTypeBlack;
+
     private Thread gameThread;
     private Board board;
     private Board AIBoard;
-
-    public Mouse mouse;
-
-    public Piece promotionPC = null;
-    public ArrayList<Piece> promoPCLst = new ArrayList<>(4);
-
-    public int currColor = CONSTANTS.WHITE;
-
-    public Piece activePC = null;
-    public Square hoveredSquare = null;
-    public Square previousMoveLocation = null;
-    public Square currentMoveLocation = null;
-    public Square activeSQ = null;
-    
-    public boolean clearEnPassantNextTurn = false;
-    
-    public boolean canMove = false;
-    public boolean validSquare = false;
 
     private int halfmoveClock = 0;
     private int moves = 1;
 
     private Player white;
     private Player black;
+
+    private GameState winner = GameState.Playing;
+
+    public Mouse mouse;
+
+    public Piece promotionPC = null;
+    public Piece activePC = null;
+    public Piece checkingPC = null;
+    public ArrayList<Piece> promoPCLst = new ArrayList<>(4);
+
+    public int currColor = CONSTANTS.WHITE;
+
+    public Square hoveredSquare = null;
+    public Square previousMoveLocation = null;
+    public Square currentMoveLocation = null;
+    public Square activeSQ = null;
+
+    public MoveGen mg;
+    
+    public boolean clearEnPassantNextTurn = false;
+    
+    public boolean canMove = false;
+    public boolean validSquare = false;
 
     public static Game getInstance() {
         if (instance == null) {
@@ -60,7 +77,12 @@ public class Game extends JPanel implements Runnable {
         setBackground(Color.BLACK);
     }
 
-    public void init(String fen, Enums.PlayerType PlayerTypeWhite, Enums.PlayerType PlayerTypeBlack) {
+    public void init(String fen, PlayerType PlayerTypeWhite, PlayerType PlayerTypeBlack) {
+
+        this.initialFen = fen;
+        this.initialPlayerTypeWhite = PlayerTypeWhite;
+        this.initialPlayerTypeBlack = PlayerTypeBlack;
+
         this.board = new Board();
         this.AIBoard = new Board(this.board);
         this.mouse = new Mouse();
@@ -76,17 +98,49 @@ public class Game extends JPanel implements Runnable {
         this.halfmoveClock = Integer.parseInt(gameState[4]);
         this.moves = Integer.parseInt(gameState[5]);
 
-        if(PlayerTypeWhite == Enums.PlayerType.Human) {
-            this.white = new Human(this.board);
-        } else if (PlayerTypeWhite == Enums.PlayerType.AI) {
-            this.white = new AI(this.board, this.AIBoard);
+        // Set up Players
+        if(PlayerTypeWhite == PlayerType.Human) {
+            this.white = new Human(this.board, CONSTANTS.WHITE);
+        } else if (PlayerTypeWhite == PlayerType.AI) {
+            this.white = new AI(this.board, this.AIBoard, CONSTANTS.WHITE);
         }
-        
-        if(PlayerTypeBlack == Enums.PlayerType.Human) {
-            this.black = new Human(this.board);
-        } else if (PlayerTypeBlack == Enums.PlayerType.AI) {
-            this.black = new AI(this.board, this.AIBoard);
+
+        if(PlayerTypeBlack == PlayerType.Human) {
+            this.black = new Human(this.board, CONSTANTS.BLACK);
+        } else if (PlayerTypeBlack == PlayerType.AI) {
+            this.black = new AI(this.board, this.AIBoard, CONSTANTS.BLACK);
         }
+
+        this.mg = new MoveGen(this.board, this.currColor, this.checkingPC);
+        repaint();
+    }
+
+    public void initGUI() {
+        Main.resetButton = ButtonFactory.createButton(
+            "Reset Game",
+            new Rectangle(850, 700, 200, 50),
+            new Font("Arial", Font.BOLD, 20),
+            new Color(119,154,88),
+            new Color(234,235,200)
+        );
+        Main.resetButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                resetGame();
+            }
+        });
+    }
+    
+    private void resetGame() {
+        init(initialFen, initialPlayerTypeWhite, initialPlayerTypeBlack);
+        this.winner = GameState.Playing;
+        promotionPC = null;
+        activePC = null;
+        checkingPC = null;
+        promoPCLst = new ArrayList<>(4);
+        hoveredSquare = null;
+        previousMoveLocation = null;
+        currentMoveLocation = null;
+        activeSQ = null;
     }
 
     public void start() {
@@ -110,12 +164,26 @@ public class Game extends JPanel implements Runnable {
             if(delta >= 1) {
                 sleep(15);
 
+                if(mg.currColor != this.currColor) {
+                    mg.currColor = this.currColor;
+                    mg.checkingPC = this.checkingPC;
+                    GameState gs = mg.checkGameState();
+                    if(gs == GameState.Checkmate) {
+                        this.winner = (currColor == CONSTANTS.WHITE) ? GameState.BlackWin : GameState.WhiteWin;
+                    } else if(gs == GameState.Stalemate) {
+                        this.winner = GameState.Stalemate;
+                    }
+                    repaint();
+                    System.out.println(gs);
+                }
+
                 Player p = getCurrPlayer();
                 p.makeMove();
                 
                 delta--;
             }
         }
+        
     }
 
     @Override
@@ -222,6 +290,31 @@ public class Game extends JPanel implements Runnable {
                 promoPCLst.add(i, tempPiece);
             }
         }
+
+        // Handle Winner
+        if(this.winner != GameState.Playing) {
+            g2.setFont(new Font("TimesRoman", Font.BOLD, 50)); // Set the font
+            g2.setColor(Color.BLACK); // Set the color
+
+            String message = "";
+            if(this.winner == GameState.WhiteWin) {
+                message = "White wins by Check Mate!";
+            } else if(this.winner == GameState.BlackWin) {
+                message = "Black wins Check Mate!";
+            } else {
+                message = "Stalemate!";
+            }
+
+            // Get the FontMetrics
+            FontMetrics metrics = g2.getFontMetrics(g2.getFont());
+            // Determine the X coordinate for the text
+            int x = 400 - metrics.stringWidth(message) / 2;
+            // Determine the Y coordinate for the text (note we add the ascent, as in java 2d 0 is top of the screen)
+            int y = 400 - metrics.getHeight() / 2 + metrics.getAscent();
+
+            // Draw the message
+            g2.drawString(message, x, y);
+        }
     }
 
     public void swapTurn() {
@@ -264,6 +357,7 @@ public class Game extends JPanel implements Runnable {
             // Check the pseudo legal moves
             if(Piece.putKingInCheck(this.activePC, this.board)) {
                 Sound.play("move-check");
+                this.checkingPC = this.activePC;
             }
 
             // en-passant
@@ -294,6 +388,9 @@ public class Game extends JPanel implements Runnable {
     public void handlePiecePromotion(int clickedRow, int clickedCol) {
 
         Set<Piece> pcs = (this.promotionPC.color == CONSTANTS.WHITE) ? Piece.WhitePieces : Piece.BlackPieces;
+
+        if(this.promoPCLst.isEmpty()) this.promoPCLst.add(new Queen(this.promotionPC.color, clickedRow, clickedCol));
+        
         for (Piece pc : this.promoPCLst) {
             if (pc.row == clickedRow && pc.col == clickedCol) {
                 // Promotion piece was clicked, handle accordingly

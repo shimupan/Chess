@@ -6,8 +6,8 @@ import Piece.Piece;
 
 public class Human extends Player {
 
-    public Human(Board board) {
-        super(board);
+    public Human(Board board, int color) {
+        super(board, color);
         
     }
 

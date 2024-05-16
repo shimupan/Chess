@@ -7,9 +7,11 @@ public abstract class Player {
 
     public Board board;
     public Game game;
+    public int color;
 
-    public Player(Board board) {
+    public Player(Board board, int color) {
         this.board = board;
+        this.color = color;
         this.game = Game.getInstance();
     }
     

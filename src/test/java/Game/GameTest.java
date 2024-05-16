@@ -37,6 +37,15 @@ public class GameTest {
 
     // CASTLING BROKEN
     @Test
+    public void AIvsAI() {
+        g.init("", AI, AI);
+        g.start();
+        window.setVisible(true);
+        sleep(60000);
+    }
+
+    // CASTLING BROKEN
+    @Test
     public void CastleTest() {
         g.init("r3k2r/8/8/8/8/8/8/R3K2R w KQkq - 0 1", Human, Human);
         g.start();
@@ -48,6 +57,31 @@ public class GameTest {
     @Test
     public void PromotionTest() {
         g.init("8/3P4/8/8/K6k/8/3p4/8 w - - 0 1", Human, AI);
+        g.start();
+        window.setVisible(true);
+        sleep(60000);
+    }
+
+    // ENPASSANT LOADING DOESNT WORK
+    @Test
+    public void EnPassantTest() {
+        g.init("3k4/8/8/8/2pP4/8/8/3K4 b - d3 0 1", Human, Human);
+        g.start();
+        window.setVisible(true);
+        sleep(60000);
+    }
+
+    @Test
+    public void CheckMateTest() {
+        g.init("k1K5/7Q/8/8/8/8/8/6B1 w - - 0 1", Human, Human);
+        g.start();
+        window.setVisible(true);
+        sleep(60000);
+    }
+
+    @Test
+    public void StaleMateTest() {
+        g.init("k2K4/7Q/8/8/8/8/8/8 w - - 0 1", Human, Human);
         g.start();
         window.setVisible(true);
         sleep(60000);
