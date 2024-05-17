@@ -8,6 +8,11 @@ public class Coordinate {
         this.col = col;
     }
 
+    public Coordinate(Coordinate other) {
+        this.row = other.row;
+        this.col = other.col;
+    }
+
     @Override
     public boolean equals(Object o) {
         if(!(o instanceof Coordinate)) {return false;}

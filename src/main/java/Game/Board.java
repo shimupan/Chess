@@ -6,6 +6,7 @@ import java.awt.Graphics2D;
 import Piece.*;
 import Util.CONSTANTS;
 import Util.Coordinate;
+import Util.Move;
 import Util.Type;
 
 public class Board {
@@ -225,5 +226,14 @@ public class Board {
     public void handlePromotion(int row, int col, Piece promoPiece) {
         Piece.copy(this.getPiece(row, col), promoPiece);
         this.getSquare(row, col).updatePiece(promoPiece);
+    }
+
+    public void makeMove(Move move) {
+        
+    }
+
+    public void undoMove(Move move) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'undoMove'");
     }
 }

@@ -32,7 +32,6 @@ public class GameTest {
         window.add(g);
         window.pack();
         window.setLocationRelativeTo(null);
-        
     }
 
     // CASTLING BROKEN

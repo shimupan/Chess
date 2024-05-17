@@ -10,6 +10,7 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 import javax.swing.JPanel;
@@ -65,12 +66,20 @@ public class Game extends JPanel implements Runnable {
     public boolean canMove = false;
     public boolean validSquare = false;
 
+    /*
+     * CONSTRUCTOR
+     */
+
     public static Game getInstance() {
         if (instance == null) {
             instance = new Game();
         }
         return instance;
     }
+
+    /*
+     * INIT AND RESET
+     */
 
     private Game() {
         setPreferredSize(new Dimension(CONSTANTS.WIDTH, CONSTANTS.HEIGHT));
@@ -154,7 +163,9 @@ public class Game extends JPanel implements Runnable {
         gameThread.start();
     }
     
-    // Game Loop
+    /*
+     * MAIN LOOP
+     */
     @Override
     public void run() {
         double drawInterval = 1000000000 / CONSTANTS.FPS;
@@ -173,7 +184,6 @@ public class Game extends JPanel implements Runnable {
                 if(mg.currColor != this.currColor && mg.board == this.board) {
                     mg.currColor = this.currColor;
                     mg.checkingPC = this.checkingPC;
-                    mg.moveCount = 0;
                     GameState gs = mg.checkGameState();
                     if(gs == GameState.Checkmate) {
                         this.winner = (currColor == CONSTANTS.WHITE) ? GameState.BlackWin : GameState.WhiteWin;
@@ -192,6 +202,10 @@ public class Game extends JPanel implements Runnable {
         }
         
     }
+
+    /* 
+     * RENDERING
+    */
 
     @Override
     public void paintComponent(Graphics g) {
@@ -324,6 +338,10 @@ public class Game extends JPanel implements Runnable {
         }
     }
 
+    /*
+     * GAME LOGIC
+     */
+
     public void swapTurn() {
         this.currColor = (this.currColor == CONSTANTS.WHITE) ? CONSTANTS.BLACK : CONSTANTS.WHITE;
     }
@@ -413,7 +431,11 @@ public class Game extends JPanel implements Runnable {
         this.repaint();
         return;
     }
-    
+      
+    /*
+     * UTILITY
+     */
+
     public void handleCastling() {
         if(Piece.castlePC != null) {
             // Check which side rook is being castled
@@ -444,6 +466,23 @@ public class Game extends JPanel implements Runnable {
         } else {
             return this.black;
         }
+    }
+
+    /*
+     * TESTING
+     */
+
+    public int perft(int depth) {
+        if(depth == 0) return 1;
+
+        int nodes = 0;
+        Set<Move> moves = mg.generateMoves();
+        for (Move move : moves) {
+            board.makeMove(move); 
+            nodes += perft(depth - 1);
+            board.undoMove(move); 
+        }
+        return nodes;
     }
 
 }

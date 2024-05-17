@@ -15,20 +15,37 @@ public class Main {
 
     public static JButton resetButton;
     public static void main(String[] args) {
+        // ARGS
+        String fen = "";
+        PlayerType p1 = PlayerType.Human;
+        PlayerType p2 = PlayerType.Human;
+        if(args != null) {
+            fen = args[0];
+            if(args[1].equals("AI")) {
+                p1 = PlayerType.AI;
+            }
+            if(args[2].equals("AI")) {
+                p2 = PlayerType.AI;
+            }
+        }
+
+
+        // SETUP WINDO
         JFrame window = new JFrame("Chess");
         window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         window.setResizable(false);
     
         JLayeredPane layeredPane = new JLayeredPane();
         layeredPane.setPreferredSize(new Dimension(CONSTANTS.WIDTH, CONSTANTS.HEIGHT));
-    
+        
+        // SETUP GAME
         Game g = Game.getInstance();
-        g.init("", PlayerType.AI, PlayerType.AI);
+        g.init(fen, p1, p2);
         g.initGUI();
         g.setBounds(0, 0, 800, 800);
     
+        // MORE WINDOW SETUP
         resetButton.setBounds(850, 700, 200, 50);
-    
         layeredPane.add(g, JLayeredPane.DEFAULT_LAYER);
         layeredPane.add(resetButton, JLayeredPane.PALETTE_LAYER);
     
@@ -37,7 +54,8 @@ public class Main {
     
         window.setLocationRelativeTo(null);
         window.setVisible(true);
-    
+        
+        // START
         g.start();
     }
 }
