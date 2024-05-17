@@ -11,21 +11,23 @@ public class MoveGen {
 
     public Board board;
     public Piece checkingPC;
+    public Set<Move> moves;
     public int currColor;
 
     public MoveGen(Board board, int currColor, Piece checkingPC) {
         this.board = board;
         this.currColor = currColor;
         this.checkingPC = checkingPC;
+        this.moves = new HashSet<>();
     }
 
     public GameState checkGameState() {
-        Set<Move> moves = this.getKingMoves();
+        this.getKingMoves();
         if(moves.size() != 0) { // KING ISNT IN CHECK
             return GameState.Playing;
         }
         
-        moves.addAll(this.generateMoves());
+        this.generateMoves();
         // King isnt in check and no other pc can move
         if(checkingPC == null && moves.size() == 0) {
             return GameState.Stalemate;
@@ -35,23 +37,21 @@ public class MoveGen {
         return GameState.Playing;
     }
 
-    public Set<Move> generateMoves() {
-        Set<Move> moves = new HashSet<>();
+    public void generateMoves() {
+        this.moves.clear();
         Set<Piece> currPieceSet = (this.currColor == CONSTANTS.WHITE) ? Piece.WhitePieces : Piece.BlackPieces;
         
         for(Piece pc: currPieceSet) {
             Piece.swapPositionValues(pc);
             pc.getValidMoves(board, true);
             Piece.swapPositionValues(pc);
-            for (Coordinate coord : pc.validMoves) {
-                moves.add(new Move(pc, coord));
+            for (Move m : pc.validMoves) {
+                this.moves.add(m);
             }
         }
-
-        return moves;
     }
 
-    public Set<Move> getKingMoves() {
+    public void getKingMoves() {
         // Check if the king can move
         Coordinate kPos = Piece.getKingPosByColor(currColor);
         Piece k = this.board.getPiece(kPos.row, kPos.col);
@@ -59,12 +59,9 @@ public class MoveGen {
         k.getValidMoves(board, true);
         Piece.swapPositionValues(k);
 
-        Set<Move> moves = new HashSet<>();
-        for (Coordinate coord : k.validMoves) {
-            moves.add(new Move(k, coord));
+        for (Move m : k.validMoves) {
+            this.moves.add(m);
         }
-
-        return moves;
     }
     
 }

@@ -17,9 +17,9 @@ public class Main {
     public static void main(String[] args) {
         // ARGS
         String fen = "";
-        PlayerType p1 = PlayerType.Human;
-        PlayerType p2 = PlayerType.Human;
-        if(args != null) {
+        PlayerType p1 = PlayerType.AI;
+        PlayerType p2 = PlayerType.AI;
+        if(args.length > 0) {
             fen = args[0];
             if(args[1].equals("AI")) {
                 p1 = PlayerType.AI;

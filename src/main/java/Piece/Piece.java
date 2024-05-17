@@ -12,6 +12,7 @@ import javax.imageio.ImageIO;
 import Game.Board;
 import Game.Square;
 import Util.*;
+import Util.Enums.MoveType;
 
 public abstract class Piece {
 
@@ -21,7 +22,7 @@ public abstract class Piece {
     public int color;
     public double value;
     public boolean moved;
-    public Set<Coordinate> validMoves = new HashSet<>();
+    public Set<Move> validMoves = new HashSet<>();
 
     public static Piece castlePC;
     public static Piece[] kingPos = new Piece[2];
@@ -29,7 +30,7 @@ public abstract class Piece {
     public static Set<Piece> WhitePieces = new HashSet<>();
     public static Set<Piece> BlackPieces = new HashSet<>();
 
-    public abstract boolean canMove(int targetRow, int targetCol, Board board);
+    public abstract MoveType canMove(int targetRow, int targetCol, Board board);
     public abstract void getValidMoves(Board board, boolean check);
 
     public Piece(int color, int row, int col) {
@@ -84,8 +85,12 @@ public abstract class Piece {
         p.prevCol = p.col;
         p.getValidMoves(board, false);
         int opponentColor = (p.color == CONSTANTS.WHITE) ? CONSTANTS.BLACK : CONSTANTS.WHITE;
-        if(p.validMoves.contains(Piece.getKingPosByColor(opponentColor))) {
-            check = true;
+        Coordinate kingPos = Piece.getKingPosByColor(opponentColor);
+        for (Move move : p.validMoves) {
+            if (move.destCoords.equals(kingPos)) {
+                check = true;
+                break;
+            }
         }
 
         p.prevRow = tempRow;
@@ -107,7 +112,7 @@ public abstract class Piece {
 
     public static void swapPositionValues(Piece p) {
         if(p == null) return;
-        
+
         int tmpRow = p.row;
         int tmpCol = p.col;
         p.row = p.prevRow;
@@ -360,8 +365,8 @@ public abstract class Piece {
             }
             
             tmp.getValidMoves(boardCopy, false);
-            for (Coordinate c : tmp.validMoves) {
-                if (c.equals(kingCoordinate)) {
+            for (Move c : tmp.validMoves) {
+                if (c.destCoords.equals(kingCoordinate)) {
                     check = true;
                     break;
                 }

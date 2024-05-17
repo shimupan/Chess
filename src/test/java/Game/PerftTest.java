@@ -6,6 +6,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import Main.Main;
+import Util.CONSTANTS;
 import Util.Enums;
 
 public class PerftTest {
@@ -46,7 +47,7 @@ public class PerftTest {
     @Test
     public void DefaultBoardPerft() {
         g.init("", AI, AI);
-        g.perft(3);
+        g.perft(3, CONSTANTS.WHITE);
         window.setVisible(true);
         sleep(60000);
     }

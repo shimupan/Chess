@@ -6,6 +6,8 @@ import java.util.List;
 import Game.Board;
 import Util.CONSTANTS;
 import Util.Coordinate;
+import Util.Move;
+import Util.Enums.MoveType;
 
 public class King extends Piece {
     
@@ -22,37 +24,37 @@ public class King extends Piece {
     }
 
     @Override
-    public boolean canMove(int targetRow, int targetCol, Board board) {
+    public MoveType canMove(int targetRow, int targetCol, Board board) {
         // normal
         if(inBound(targetRow,targetCol) && 
            (canMoveUpAndDown(targetCol, this.prevCol, targetRow, this.prevRow)  || 
            canMoveDiagonally(targetCol, this.prevCol, targetRow, this.prevRow) ) &&
            validSquare(targetRow, targetCol, board)) {
-            return true;
+            return MoveType.Normal;
         }
 
         // castling
-        if(this.moved) {return false;}
+        if(!this.moved) {
+            // right castling
+            if(targetCol == this.prevCol + 2 && !pieceOnStraightLine(targetRow, targetCol, board)) {
+                Piece rightRook = board.getPiece(this.prevRow, this.prevCol+3);
+                if(rightRook != null && !rightRook.moved) {
+                    Piece.castlePC = rightRook;
+                    return MoveType.RightCastle;
+                }
+            }
 
-        // right castling
-        if(targetCol == this.prevCol + 2 && !pieceOnStraightLine(targetRow, targetCol, board)) {
-            Piece rightRook = board.getPiece(this.prevRow, this.prevCol+3);
-            if(rightRook != null && !rightRook.moved) {
-                Piece.castlePC = rightRook;
-                return true;
+            // left castle
+            if(targetCol == this.prevCol - 2 && !pieceOnStraightLine(targetRow, targetCol, board)) {
+                Piece leftRook = board.getPiece(this.prevRow, this.prevCol-4);
+                if(leftRook != null && !leftRook.moved && !board.containsPiece(this.prevRow, this.prevCol-3)) {
+                    Piece.castlePC = leftRook;
+                    return MoveType.LeftCastle;
+                }
             }
         }
 
-        // left castle
-        if(targetCol == this.prevCol - 2 && !pieceOnStraightLine(targetRow, targetCol, board)) {
-            Piece leftRook = board.getPiece(this.prevRow, this.prevCol-4);
-            if(leftRook != null && !leftRook.moved && !board.containsPiece(this.prevRow, this.prevCol-3)) {
-                Piece.castlePC = leftRook;
-                return true;
-            }
-        }
-
-        return false;
+        return MoveType.Invalid;
     }
 
     @Override
@@ -71,15 +73,16 @@ public class King extends Piece {
             new Coordinate(this.prevRow-1, this.prevCol-1)  // up-left
         );
         for(Coordinate c: directions) {
-            if(canMove(c.row, c.col, board)) {
+            MoveType moveType = canMove(c.row, c.col, board);
+            if(moveType != MoveType.Invalid) {
                 if(check) {
                     // Check if current move will put king in check
                     // SLOW
                     if(!kingInCheck(this, c.row, c.col, board)) {
-                        this.validMoves.add(c);
+                        this.validMoves.add(new Move(this, new Coordinate(c.row, c.col), moveType));
                     }
                 } else {
-                    this.validMoves.add(c);
+                    this.validMoves.add(new Move(this, new Coordinate(c.row, c.col), moveType));
                 }
             }
         }

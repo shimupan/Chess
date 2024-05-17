@@ -6,6 +6,8 @@ import java.util.List;
 import Game.Board;
 import Util.CONSTANTS;
 import Util.Coordinate;
+import Util.Enums.MoveType;
+import Util.Move;
 
 public class Pawn extends Piece {
 
@@ -26,42 +28,42 @@ public class Pawn extends Piece {
     }
 
     @Override
-    public boolean canMove(int targetRow, int targetCol, Board board) {
-        if(!inBound(targetRow,targetCol)) return false;
+    public MoveType canMove(int targetRow, int targetCol, Board board) {
+        if(inBound(targetRow,targetCol)) {
+            Piece p = board.getPiece(targetRow, targetCol);
+            
+            boolean isOneSquareAheadEmpty = targetCol == this.prevCol && 
+                                            board.getPiece(this.prevRow + direction, this.prevCol) == null;
 
-        Piece p = board.getPiece(targetRow, targetCol);
-        
-        boolean isOneSquareAheadEmpty = targetCol == this.prevCol && 
-                                        board.getPiece(this.prevRow + direction, this.prevCol) == null;
-
-        if(isOneSquareAheadEmpty && targetRow == this.prevRow + direction) { // 1 Square Movement
-            return true;
-        } 
-        
-        if(isOneSquareAheadEmpty && targetCol == this.prevCol && 
-           targetRow == this.prevRow + (direction*2) && 
-           p == null && 
-           !this.moved) { // 2 Square Movement
-            return true;
-        }
-        // Capture Diagonal
-        if(Math.abs(targetCol - this.prevCol) == 1 && 
-           targetRow == this.prevRow + direction && 
-           p != null && 
-           p.color != this.color) {
-            return true;
-        }
-        // En Passant
-        if(Math.abs(targetCol - this.prevCol) == 1 && 
-           targetRow == this.prevRow + direction) {
-            for(Piece ep: enpassantPieces) {
-                if(ep != null && ep.col == targetCol && ep.color != this.color) {
-                    return true;
+            if(isOneSquareAheadEmpty && targetRow == this.prevRow + direction) { // 1 Square Movement
+                return MoveType.Normal;
+            } 
+            
+            if(isOneSquareAheadEmpty && targetCol == this.prevCol && 
+            targetRow == this.prevRow + (direction*2) && 
+            p == null && 
+            !this.moved) { // 2 Square Movement
+                return MoveType.PawnTwoStep;
+            }
+            // Capture Diagonal
+            if(Math.abs(targetCol - this.prevCol) == 1 && 
+            targetRow == this.prevRow + direction && 
+            p != null && 
+            p.color != this.color) {
+                return MoveType.PawnCapture;
+            }
+            // En Passant
+            if(Math.abs(targetCol - this.prevCol) == 1 && 
+            targetRow == this.prevRow + direction) {
+                for(Piece ep: enpassantPieces) {
+                    if(ep != null && ep.col == targetCol && ep.color != this.color) {
+                        return MoveType.EnPassant;
+                    }
                 }
             }
         }
 
-        return false;
+        return MoveType.Invalid;
     }
 
     @Override
@@ -77,15 +79,15 @@ public class Pawn extends Piece {
         );
 
         for (Coordinate move : potentialMoves) {
-            if (canMove(move.row, move.col, board)) {
+            MoveType moveType = canMove(move.row, move.col, board);
+            if (moveType != MoveType.Invalid) {
                 if(check) {
                     if(!kingInCheck(this, move.row, move.col, board)) {
-                        this.validMoves.add(move);
+                        this.validMoves.add(new Move(this, new Coordinate(move.row, move.col), moveType));
                     }
                 } else {
-                    this.validMoves.add(move);
+                    this.validMoves.add(new Move(this, new Coordinate(move.row, move.col), moveType));
                 }
-                
             }
         }
     }

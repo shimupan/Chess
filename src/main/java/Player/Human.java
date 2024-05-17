@@ -59,13 +59,17 @@ public class Human extends Player {
         this.game.repaint();
         // Checking if valid move
         this.game.activePC.getValidMoves(board, true);
-        if (this.game.activePC.validMoves.contains(new Coordinate(this.game.activePC.row, this.game.activePC.col))) {
-            this.game.canMove = true;
-            this.game.validSquare = true;
-            this.game.handleCastling();
-        } else {
-            this.game.canMove = false;
-            this.game.validSquare = false;
+        Coordinate target = new Coordinate(this.game.activePC.row, this.game.activePC.col);
+        for (Move move : this.game.activePC.validMoves) {
+            if (move.destCoords.equals(target)) {
+                this.game.canMove = true;
+                this.game.validSquare = true;
+                this.game.handleCastling();
+                break;
+            } else {
+                this.game.canMove = false;
+                this.game.validSquare = false;
+            }
         }
     }
 }

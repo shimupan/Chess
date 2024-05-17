@@ -6,6 +6,8 @@ import java.util.List;
 import Game.Board;
 import Util.CONSTANTS;
 import Util.Coordinate;
+import Util.Enums.MoveType;
+import Util.Move;
 
 public class Bishop extends Piece {
     
@@ -22,13 +24,16 @@ public class Bishop extends Piece {
     }
 
     @Override
-    public boolean canMove(int targetRow, int targetCol, Board board) {
-        return (inBound(targetRow,targetCol) &&
-                canMoveDiagonally(targetRow, targetCol) && 
-                !sameSquare(targetRow, targetCol) && 
-                validSquare(targetRow, targetCol, board) &&
-                !pieceOnDiagonalLine(targetRow, targetCol, board)
-                );
+    public MoveType canMove(int targetRow, int targetCol, Board board) {
+        if (inBound(targetRow,targetCol) &&
+            canMoveDiagonally(targetRow, targetCol) && 
+            !sameSquare(targetRow, targetCol) && 
+            validSquare(targetRow, targetCol, board) &&
+            !pieceOnDiagonalLine(targetRow, targetCol, board)
+            ) {
+                return MoveType.Normal;
+            }
+        return MoveType.Invalid;
     }
 
     @Override
@@ -44,23 +49,20 @@ public class Bishop extends Piece {
         for (Coordinate direction : directions) {
             int newRow = this.prevRow + direction.row;
             int newCol = this.prevCol + direction.col;
-
-            while (canMove(newRow, newCol, board)) {
+            MoveType moveType = canMove(newRow, newCol, board);
+            while (moveType != MoveType.Invalid) {
                 if(check) {
                     // Check if king is in check
                     if(!kingInCheck(this, newRow, newCol, board)) {
-                        this.validMoves.add(new Coordinate(newRow, newCol));
+                        this.validMoves.add(new Move(this, new Coordinate(newRow, newCol), moveType));
                     }
                 } else {
-                    this.validMoves.add(new Coordinate(newRow, newCol));
-                }
-
-                if (board.rep[newRow][newCol].containsPiece()) {
-                    break;
+                    this.validMoves.add(new Move(this, new Coordinate(newRow, newCol), moveType));
                 }
                 // Move to the next square in the current direction
                 newRow += direction.row;
                 newCol += direction.col;
+                moveType = canMove(newRow, newCol, board);
             }
         }
     }

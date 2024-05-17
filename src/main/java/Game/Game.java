@@ -10,7 +10,6 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Set;
 
 import javax.swing.JPanel;
@@ -241,13 +240,13 @@ public class Game extends JPanel implements Runnable {
 
             if(this.activePC != null) {
                 this.activePC.getValidMoves(this.board, true);
-                for(Coordinate c: this.activePC.validMoves) {
+                for(Move c: this.activePC.validMoves) {
                     // Set color to semi-transparent gray
                     g2.setColor(new Color(128, 128, 128, 128)); // RGBA values
 
                     // Calculate the center of the square
-                    int centerX = c.col * CONSTANTS.SQSIZE + CONSTANTS.SQSIZE / 2;
-                    int centerY = c.row * CONSTANTS.SQSIZE + CONSTANTS.SQSIZE / 2;
+                    int centerX = c.destCoords.col * CONSTANTS.SQSIZE + CONSTANTS.SQSIZE / 2;
+                    int centerY = c.destCoords.row * CONSTANTS.SQSIZE + CONSTANTS.SQSIZE / 2;
 
                     // Draw a circle in the center of the square
                     g2.fillOval(centerX - CONSTANTS.SQSIZE / 8, 
@@ -255,13 +254,13 @@ public class Game extends JPanel implements Runnable {
                                 CONSTANTS.SQSIZE / 4, 
                                 CONSTANTS.SQSIZE / 4);
 
-                    if(board.getPiece(c.row, c.col) != null) {
+                    if(board.getPiece(c.destCoords.row, c.destCoords.col) != null) {
                         g2.setColor(Color.RED.brighter());
-                        g2.fillRect(c.col * CONSTANTS.SQSIZE, 
-                                    c.row * CONSTANTS.SQSIZE, 
+                        g2.fillRect(c.destCoords.col * CONSTANTS.SQSIZE, 
+                                    c.destCoords.row * CONSTANTS.SQSIZE, 
                                     CONSTANTS.SQSIZE, 
                                     CONSTANTS.SQSIZE);
-                        board.getPiece(c.row, c.col).draw(g2);
+                        board.getPiece(c.destCoords.row, c.destCoords.col).draw(g2);
                     }
                 }
             }
@@ -472,15 +471,15 @@ public class Game extends JPanel implements Runnable {
      * TESTING
      */
 
-    public int perft(int depth) {
+    public int perft(int depth, int color) {
         if(depth == 0) return 1;
-
+        int oppColor = (color == CONSTANTS.WHITE) ? CONSTANTS.BLACK : CONSTANTS.WHITE;
         int nodes = 0;
-        Set<Move> moves = mg.generateMoves();
-        for (Move move : moves) {
-            board.makeMove(move); 
-            nodes += perft(depth - 1);
-            board.undoMove(move); 
+        MoveGen mGen = new MoveGen(board, color, checkingPC);
+        for (Move move : mGen.moves) {
+
+            nodes += perft(depth - 1, oppColor);
+
         }
         return nodes;
     }

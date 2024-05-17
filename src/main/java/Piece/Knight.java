@@ -6,6 +6,8 @@ import java.util.List;
 import Game.Board;
 import Util.CONSTANTS;
 import Util.Coordinate;
+import Util.Enums.MoveType;
+import Util.Move;
 
 public class Knight extends Piece {
     
@@ -22,9 +24,12 @@ public class Knight extends Piece {
     }
 
     @Override
-    public boolean canMove(int targetRow, int targetCol, Board board) {
-        return ( inBound(targetRow,targetCol)  &&
-                  validSquare(targetRow, targetCol, board) );
+    public MoveType canMove(int targetRow, int targetCol, Board board) {
+        if ( inBound(targetRow,targetCol)  &&
+             validSquare(targetRow, targetCol, board) ) {
+             return MoveType.Normal;
+        }
+        return MoveType.Invalid;
     }
 
     @Override
@@ -42,13 +47,14 @@ public class Knight extends Piece {
         );
 
         for (Coordinate move : potentialMoves) {
-            if (canMove(move.row, move.col, board)) {
+            MoveType moveType = canMove(move.row, move.col, board);
+            if (moveType != MoveType.Invalid) {
                 if(check) {
                     if(!kingInCheck(this, move.row, move.col, board)) {
-                        this.validMoves.add(new Coordinate(move.row, move.col));
+                        this.validMoves.add(new Move(this, new Coordinate(move.row, move.col), moveType));
                     }
                 } else {
-                    this.validMoves.add(new Coordinate(move.row, move.col));
+                    this.validMoves.add(new Move(this, new Coordinate(move.row, move.col), moveType));
                 }
             }
         }

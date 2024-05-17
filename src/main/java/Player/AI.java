@@ -3,39 +3,33 @@ package Player;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
 
 import Game.Board;
+import Game.Game;
 import Piece.Piece;
 import Util.CONSTANTS;
-import Util.Coordinate;
+import Util.Move;
 import Util.Type;
 
 public class AI extends Player {
 
     private Board AIBoard;
+    private Game GameInstance;
 
     public AI(Board board, Board AIBoard, int color) {
         super(board, color);
         this.AIBoard = AIBoard;
+        this.GameInstance = Game.getInstance();
     }
 
     @Override
     public void makeMove() { 
-        List<Coordinate> moves = null;
+        Set<Move> moves = GameInstance.mg.moves;
         Random rand = new Random();
-        do {
-            List<Piece> select = (this.color == CONSTANTS.WHITE) ? new ArrayList<>(Piece.WhitePieces) : new ArrayList<>(Piece.BlackPieces);
-            Piece p = select.get(rand.nextInt(select.size()));
-            // Piece selection
-            this.game.handlePieceSelection(p.row, p.col);
-            if(this.game.activePC == null) continue;
-            // Get Move (randomly for now)
-            this.game.activePC.getValidMoves(board, true);
-            moves = new ArrayList<>(this.game.activePC.validMoves);
-            
-        } while(moves == null || moves.isEmpty());
 
-        Coordinate move = moves.get(rand.nextInt(moves.size()));
+        List<Move> movesList = new ArrayList<>(moves);
+        Move move = movesList.get(rand.nextInt(moves.size()));
 
         this.game.validSquare = true;
         // Update active pc with move
@@ -52,10 +46,12 @@ public class AI extends Player {
         
     }
 
-    private void updateMove(Coordinate move) {
-        this.game.activePC.row = move.row;
-        this.game.activePC.col = move.col;
-        if( Type.isPawn(this.game.activePC) && ((this.color == CONSTANTS.WHITE && move.row == 0) || (this.color == CONSTANTS.BLACK && move.row == 7)) ) {
+    private void updateMove(Move move) {
+        this.game.activePC.row = move.destCoords.row;
+        this.game.activePC.col = move.destCoords.col;
+        if( Type.isPawn(this.game.activePC) && 
+            ((this.color == CONSTANTS.WHITE && move.destCoords.row == 0) || 
+            (this.color == CONSTANTS.BLACK && move.destCoords.row == 7)) ) {
             this.game.promotionPC = this.game.activePC;
         }
     }

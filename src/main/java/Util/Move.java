@@ -1,25 +1,23 @@
 package Util;
 
 import Piece.Piece;
+import Util.Enums.MoveType;
 
 public class Move {
-    Piece p;
-    Coordinate destCoords;
+    public Piece p;
+    public Coordinate destCoords;
+    public MoveType type;
 
-    // Flags for if the move performed one of the following
-    boolean promotion = false;
-    boolean check = false;
-    boolean enpassant = false;
-    boolean castle = false;
-
-    public Move(Piece p, Coordinate destCoords) {
+    public Move(Piece p, Coordinate destCoords, MoveType type) {
         this.p = p;
         this.destCoords = new Coordinate(destCoords);
+        this.type = type;
     }
 
-    public Move(Piece p, int destRow, int destCol) {
+    public Move(Piece p, int destRow, int destCol, MoveType type) {
         this.p = p;
         this.destCoords = new Coordinate(destRow, destCol);
+        this.type = type;
     }
 
     @Override

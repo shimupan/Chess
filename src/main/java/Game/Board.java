@@ -179,11 +179,11 @@ public class Board {
 
     public Piece getPiece(int row, int col) {
         if(!Piece.inBound(row, col)) return null;
-
         return rep[row][col].getPiece();
     }
 
     public boolean containsPiece(int row, int col) {
+        if(!Piece.inBound(row, col)) return false;
         return rep[row][col].containsPiece();
     }
 
