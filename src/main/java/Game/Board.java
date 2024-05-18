@@ -228,12 +228,4 @@ public class Board {
         this.getSquare(row, col).updatePiece(promoPiece);
     }
 
-    public void makeMove(Move move) {
-        
-    }
-
-    public void undoMove(Move move) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'undoMove'");
-    }
 }

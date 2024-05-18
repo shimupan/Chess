@@ -4,9 +4,8 @@ import javax.swing.JFrame;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import Main.Main;
-import Util.CONSTANTS;
 import Util.Enums;
 
 public class PerftTest {
@@ -42,14 +41,31 @@ public class PerftTest {
         Main.main(new String[]{"", "Human", "Human"});
         sleep(600000);
     }
+    */
     @Test
-    public void DefaultBoardPerft() {
+    public void DefaultBoardPerftDepth2() {
         g.init("", AI, AI);
         window.setVisible(true);
-        g.perft(3, CONSTANTS.WHITE);
-        sleep(60000);
+        int result = g.perft(2);
+        assertEquals(result, 400);
     }
-    */
 
-    
+    @Test
+    public void DefaultBoardPerftDepth3() {
+        g.init("", AI, AI);
+        window.setVisible(true);
+        int result = g.perft(3);
+        assertEquals(result, 8902);
+    }
+
+    @Test
+    public void CustomBoardPerftDepth3() {
+        g.init("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1", AI, AI);
+        window.setVisible(true);
+        int result = g.perft(1);
+        assertEquals(result, 48);
+        result = g.perft(2);
+        assertEquals(result, 2039);
+    }
+
 }

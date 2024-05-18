@@ -56,7 +56,6 @@ public class AI extends Player {
     }
 
     private void updateMove(Move move) {
-
         this.game.activePC.row = move.destCoords.row;
         this.game.activePC.col = move.destCoords.col;
         if( Type.isPawn(this.game.activePC) && 

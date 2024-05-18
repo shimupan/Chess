@@ -10,6 +10,7 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Set;
 
 import javax.swing.JPanel;
@@ -514,6 +515,29 @@ public class Game extends JPanel implements Runnable {
         } else {
             return this.black;
         }
+    }
+
+    public int perft(int depth) {
+        if(depth == 0) return 1;
+        int nodes = 0;
+        mg.currColor = this.currColor;
+        mg.generateMoves();
+        Set<Move> move = new HashSet<>(mg.moves);
+        for(Move m: move) {
+            this.validSquare = true;
+            this.handlePieceSelection(m.p.row, m.p.col);
+            this.activePC.row = m.destCoords.row;
+            this.activePC.col = m.destCoords.col;
+            if( Type.isPawn(this.activePC) && 
+                ((this.currColor == CONSTANTS.WHITE && m.destCoords.row == 0) || 
+                (this.currColor == CONSTANTS.BLACK && m.destCoords.row == 7)) ) {
+                this.promotionPC = this.activePC;
+            }
+            this.handlePiecePlacement(m);
+            nodes += perft(depth - 1);
+            this.undoMove();
+        }
+        return nodes;
     }
 
 }
