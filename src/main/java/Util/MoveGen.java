@@ -22,6 +22,7 @@ public class MoveGen {
     }
 
     public GameState checkGameState() {
+        this.moves.clear();
         this.getKingMoves();
         if(moves.size() != 0) { // KING ISNT IN CHECK
             return GameState.Playing;

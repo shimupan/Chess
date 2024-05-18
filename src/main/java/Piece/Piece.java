@@ -26,7 +26,8 @@ public abstract class Piece {
 
     public static Piece castlePC;
     public static Piece[] kingPos = new Piece[2];
-    public static Set<Piece> enpassantPieces = new HashSet<>();
+    public static Piece enpassantPiece = null;
+    public static Piece prevEnpassantPiece = null;
     public static Set<Piece> WhitePieces = new HashSet<>();
     public static Set<Piece> BlackPieces = new HashSet<>();
 
@@ -145,7 +146,7 @@ public abstract class Piece {
         return img;
     }
 
-    public void updatePos(Board board) {
+    public void updatePos(Board board, Move move) {
         this.x = getX(col);
         this.y = getY(row);
         this.col = getCol(x);
@@ -159,7 +160,7 @@ public abstract class Piece {
         if(Type.isPawn(this)) {
             // check if it moved 2 squares
             if(Math.abs(this.row - this.prevRow) == 2) {
-                Piece.enpassantPieces.add(this);
+                Piece.enpassantPiece = this;
             }
             // check if it did enpassant
             if (Math.abs(this.col - this.prevCol) == 1) {
@@ -180,6 +181,8 @@ public abstract class Piece {
                     } else {
                         BlackPieces.remove(capturedSquare.getPiece());
                     }
+                    move.type = MoveType.EnPassant;
+                    move.setCapturedPC(capturedSquare.getPiece());
                     capturedSquare.updatePiece(null);
                 }
             }
@@ -188,6 +191,8 @@ public abstract class Piece {
         // castle
         if(Piece.castlePC != null) {
             Sound.play("castle");
+            move.setCapturedPC(castlePC);
+            Piece.castlePC = null;
             castleSound = true;
         }
 
@@ -195,7 +200,7 @@ public abstract class Piece {
         Square Dest = board.rep[row][col];
         Square Prev = board.rep[prevRow][prevCol];
         
-        if(Dest.equals(Prev)) return;
+        if(Dest.equals(Prev) || !Prev.containsPiece()) return;
 
         if(!enpassantSound && !castleSound) {
             if(Dest.containsPiece()) {
@@ -205,6 +210,8 @@ public abstract class Piece {
                 } else {
                     BlackPieces.remove(Dest.getPiece());
                 }
+                move.type = MoveType.Capture;
+                move.setCapturedPC(Dest.getPiece());
             } else {
                 Sound.play("move-self");
             }

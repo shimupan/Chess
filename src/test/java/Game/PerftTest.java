@@ -42,13 +42,14 @@ public class PerftTest {
         Main.main(new String[]{"", "Human", "Human"});
         sleep(600000);
     }
-    */
-
     @Test
     public void DefaultBoardPerft() {
         g.init("", AI, AI);
-        g.perft(3, CONSTANTS.WHITE);
         window.setVisible(true);
+        g.perft(3, CONSTANTS.WHITE);
         sleep(60000);
     }
+    */
+
+    
 }

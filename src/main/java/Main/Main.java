@@ -14,10 +14,11 @@ import Util.Enums.PlayerType;;
 public class Main {
 
     public static JButton resetButton;
+    public static JButton undoButton;
     public static void main(String[] args) {
         // ARGS
-        String fen = "";
-        PlayerType p1 = PlayerType.AI;
+        String fen = "r3k2r/8/8/8/8/8/8/R3K2R w KQkq - 0 1";
+        PlayerType p1 = PlayerType.Human;
         PlayerType p2 = PlayerType.AI;
         if(args.length > 0) {
             fen = args[0];
@@ -45,9 +46,9 @@ public class Main {
         g.setBounds(0, 0, 800, 800);
     
         // MORE WINDOW SETUP
-        resetButton.setBounds(850, 700, 200, 50);
         layeredPane.add(g, JLayeredPane.DEFAULT_LAYER);
         layeredPane.add(resetButton, JLayeredPane.PALETTE_LAYER);
+        layeredPane.add(undoButton, JLayeredPane.PALETTE_LAYER);
     
         window.add(layeredPane);
         window.pack();

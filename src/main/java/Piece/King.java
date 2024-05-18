@@ -39,8 +39,7 @@ public class King extends Piece {
             if(targetCol == this.prevCol + 2 && !pieceOnStraightLine(targetRow, targetCol, board)) {
                 Piece rightRook = board.getPiece(this.prevRow, this.prevCol+3);
                 if(rightRook != null && !rightRook.moved) {
-                    Piece.castlePC = rightRook;
-                    return MoveType.RightCastle;
+                    return MoveType.KingSideCastle;
                 }
             }
 
@@ -48,8 +47,7 @@ public class King extends Piece {
             if(targetCol == this.prevCol - 2 && !pieceOnStraightLine(targetRow, targetCol, board)) {
                 Piece leftRook = board.getPiece(this.prevRow, this.prevCol-4);
                 if(leftRook != null && !leftRook.moved && !board.containsPiece(this.prevRow, this.prevCol-3)) {
-                    Piece.castlePC = leftRook;
-                    return MoveType.LeftCastle;
+                    return MoveType.QueenSideCastle;
                 }
             }
         }
@@ -75,14 +73,20 @@ public class King extends Piece {
         for(Coordinate c: directions) {
             MoveType moveType = canMove(c.row, c.col, board);
             if(moveType != MoveType.Invalid) {
+                Move m = new Move(this, new Coordinate(c.row, c.col), moveType);
+                if(moveType == MoveType.QueenSideCastle) {
+                    m.setCastlePC(board.getPiece(this.prevRow, this.prevCol-4));
+                } else if (moveType == MoveType.KingSideCastle) {
+                    m.setCastlePC(board.getPiece(this.prevRow, this.prevCol+3));
+                }
                 if(check) {
                     // Check if current move will put king in check
                     // SLOW
                     if(!kingInCheck(this, c.row, c.col, board)) {
-                        this.validMoves.add(new Move(this, new Coordinate(c.row, c.col), moveType));
+                        this.validMoves.add(m);
                     }
                 } else {
-                    this.validMoves.add(new Move(this, new Coordinate(c.row, c.col), moveType));
+                    this.validMoves.add(m);
                 }
             }
         }

@@ -5,19 +5,69 @@ import Util.Enums.MoveType;
 
 public class Move {
     public Piece p;
-    public Coordinate destCoords;
+    public Coordinate destCoords, prevCoords, moveTypeDestCoords, moveTypePrevCoords;
     public MoveType type;
+    public boolean firstMove;
+    
+    private Piece capturedPC;
+    private Piece castlePC;
+    private Piece PCBeforePromotion;
 
     public Move(Piece p, Coordinate destCoords, MoveType type) {
         this.p = p;
+        this.capturedPC = null;
         this.destCoords = new Coordinate(destCoords);
+        this.prevCoords = new Coordinate(p.prevRow, p.prevCol);
         this.type = type;
+        this.firstMove = p.moved;
     }
 
     public Move(Piece p, int destRow, int destCol, MoveType type) {
         this.p = p;
+        this.capturedPC = null;
         this.destCoords = new Coordinate(destRow, destCol);
         this.type = type;
+        this.firstMove = p.moved;
+    }
+
+    public void setCapturedPC(Piece capturedPC) {
+        this.capturedPC = capturedPC;
+        this.setMoveTypeCoords(capturedPC);
+    }
+
+    public void setCastlePC(Piece CastlePC) {
+        this.castlePC = CastlePC;
+        this.setMoveTypeCoords(CastlePC);
+    }
+
+    public void setPCBeforePromotion(Piece PCBeforePromotion) {
+        this.PCBeforePromotion = PCBeforePromotion;
+        this.setPCBeforePromotion(PCBeforePromotion);
+    }
+
+    public Coordinate getMoveTypeDestCoords() {
+        return this.moveTypeDestCoords;
+    }
+
+    public Coordinate getMoveTypePrevCoords() {
+        return this.moveTypePrevCoords;
+    }
+
+    public Piece getCapturedPC() {
+        return this.capturedPC;
+    }
+
+    public Piece getCastlePC() {
+        return this.castlePC;
+    }
+
+    public Piece getPCBeforePromotion() {
+        return this.PCBeforePromotion;
+    }
+
+    private void setMoveTypeCoords(Piece p) {
+        this.moveTypeDestCoords = new Coordinate(p.row, p.col);
+        this.moveTypePrevCoords = new Coordinate(p.prevRow, p.prevCol);
     }
 
     @Override

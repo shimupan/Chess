@@ -141,7 +141,7 @@ public class Board {
         if(enPassCoordinate != null) {
             // Set en passant target square
             Piece enPassantPC = this.getPiece(enPassCoordinate.row, enPassCoordinate.col);
-            Piece.enpassantPieces.add(enPassantPC);
+            Piece.enpassantPiece = enPassantPC;
         }
         
         return parts;

@@ -2,13 +2,15 @@ package Player;
 
 import Game.*;
 import Util.*;
+import Util.Enums.MoveType;
 import Piece.Piece;
 
 public class Human extends Player {
 
+    private Move move;
+
     public Human(Board board, int color) {
         super(board, color);
-        
     }
 
     @Override
@@ -17,7 +19,7 @@ public class Human extends Player {
             if(this.game.mouse.pressed && this.game.mouse.x <= 800) {
                 int clicked_row = this.game.mouse.y/CONSTANTS.SQSIZE;
                 int clicked_col = this.game.mouse.x/CONSTANTS.SQSIZE;
-                this.game.handlePiecePromotion(clicked_row, clicked_col);
+                this.game.handlePiecePromotion(clicked_row, clicked_col, this.move);
             }
             return;
         }
@@ -35,7 +37,8 @@ public class Human extends Player {
         // Mouse Release
         if(!this.game.mouse.pressed) {
             if(this.game.activePC != null) {
-                this.game.handlePiecePlacement();
+                this.move = new Move(this.game.activePC, new Coordinate(this.game.activePC.row, this.game.activePC.col), MoveType.Normal);
+                this.game.handlePiecePlacement(this.move);
             }
         }
     }

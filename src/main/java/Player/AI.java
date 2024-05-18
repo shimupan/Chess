@@ -6,8 +6,6 @@ import java.util.Random;
 import java.util.Set;
 
 import Game.Board;
-import Game.Game;
-import Piece.Piece;
 import Util.CONSTANTS;
 import Util.Move;
 import Util.Type;
@@ -15,38 +13,50 @@ import Util.Type;
 public class AI extends Player {
 
     private Board AIBoard;
-    private Game GameInstance;
 
     public AI(Board board, Board AIBoard, int color) {
         super(board, color);
         this.AIBoard = AIBoard;
-        this.GameInstance = Game.getInstance();
     }
 
     @Override
     public void makeMove() { 
-        Set<Move> moves = GameInstance.mg.moves;
+        this.game.mg.generateMoves();
+        Set<Move> moves = this.game.mg.moves;
         Random rand = new Random();
 
         List<Move> movesList = new ArrayList<>(moves);
-        Move move = movesList.get(rand.nextInt(moves.size()));
-
+        Move move = null;
+        int index = -1;
+        try {
+            index = rand.nextInt(moves.size());
+            move = movesList.get(index);
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+        }
+        
         this.game.validSquare = true;
+        this.game.handlePieceSelection(move.p.row, move.p.col);
         // Update active pc with move
-        this.updateMove(move);
+        try {
+            this.updateMove(move);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         // Promote Piece
         if(this.game.promotionPC != null) {
             // always promote to queen for now
-            this.game.handlePiecePlacement();
-            this.game.handlePiecePromotion(this.game.promotionPC.row, this.game.promotionPC.col);
+            this.game.handlePiecePlacement(move);
+            this.game.handlePiecePromotion(this.game.promotionPC.row, this.game.promotionPC.col, move);
         } else {
             // Place it
-            this.game.handlePiecePlacement();
+            this.game.handlePiecePlacement(move);
         }
         
     }
 
     private void updateMove(Move move) {
+
         this.game.activePC.row = move.destCoords.row;
         this.game.activePC.col = move.destCoords.col;
         if( Type.isPawn(this.game.activePC) && 

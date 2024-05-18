@@ -22,6 +22,7 @@ import Piece.*;
 import Player.*;
 import Util.*;
 import Util.Enums.GameState;
+import Util.Enums.MoveType;
 import Util.Enums.PlayerType;;
 
 public class Game extends JPanel implements Runnable {
@@ -35,21 +36,23 @@ public class Game extends JPanel implements Runnable {
     private Thread gameThread;
     private Board board;
     private Board AIBoard;
-
+    
     private int halfmoveClock = 0;
     private int moves = 1;
-
+    private boolean checkGameState = false;
+    
     private Player white;
     private Player black;
-
     private GameState winner = GameState.Playing;
-
+    private boolean processing = false;
+    
     public Mouse mouse;
-
+    
     public Piece promotionPC = null;
     public Piece activePC = null;
     public Piece checkingPC = null;
     public ArrayList<Piece> promoPCLst = new ArrayList<>(4);
+    public ArrayList<Move> gameMoves = new ArrayList<>();
 
     public int currColor = CONSTANTS.WHITE;
 
@@ -133,11 +136,41 @@ public class Game extends JPanel implements Runnable {
         );
         Main.resetButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
+                processing = true;
                 resetGame();
+                processing = false;
+            }
+        });
+
+        Main.undoButton = ButtonFactory.createButton(
+            "Undo Move",
+            new Rectangle(850, 600, 200, 50),
+            new Font("Arial", Font.BOLD, 20),
+            new Color(119,154,88),
+            new Color(234,235,200)
+        );
+        Main.undoButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                processing = true;
+                undoMove();
+                processing = false;
             }
         });
     }
     
+    protected void undoMove() {
+        if(this.gameMoves.size() == 0) return;
+
+        Move lastMove = this.gameMoves.get(this.gameMoves.size() - 1);
+        this.gameMoves.removeLast();
+        this.halfmoveClock--;
+        this.moves--;
+        this.getCurrPlayer().undoMove(lastMove);
+        this.swapTurn();
+        this.repaint();
+        
+    }
+
     private void resetGame() {
         init(initialFen, initialPlayerTypeWhite, initialPlayerTypeBlack);
         mg.board = this.board;
@@ -153,8 +186,6 @@ public class Game extends JPanel implements Runnable {
         clearEnPassantNextTurn = false;
         canMove = false;
         validSquare = false;
-        
-        gameThread.interrupt();
     }
 
     public void start() {
@@ -176,11 +207,11 @@ public class Game extends JPanel implements Runnable {
             currTime = System.nanoTime();
             delta += (currTime - prevTime)/drawInterval;
             prevTime = currTime;
-
-            if(delta >= 1) {
-                sleep(15);
-
-                if(mg.currColor != this.currColor && mg.board == this.board) {
+            
+            if(delta >= 1 && !processing) {
+                if(!checkGameState) {
+                    if(gameMoves.size() > 0) System.out.println(gameMoves.get(gameMoves.size()-1).type);
+                    checkGameState = true;
                     mg.currColor = this.currColor;
                     mg.checkingPC = this.checkingPC;
                     GameState gs = mg.checkGameState();
@@ -193,13 +224,15 @@ public class Game extends JPanel implements Runnable {
                     System.out.println(gs);
                 }
 
-                Player p = getCurrPlayer();
-                p.makeMove();
-                
+                if(this.winner == GameState.Playing) {
+                    Player p = getCurrPlayer();
+                    p.makeMove();
+                }
+
                 delta--;
             }
+            sleep(15);
         }
-        
     }
 
     /* 
@@ -225,8 +258,9 @@ public class Game extends JPanel implements Runnable {
                         this.currentMoveLocation.getRow() * CONSTANTS.SQSIZE, 
                         CONSTANTS.SQSIZE, 
                         CONSTANTS.SQSIZE);
-            
-            this.currentMoveLocation.getPiece().draw(g2);
+            if(this.currentMoveLocation.containsPiece()) {
+                this.currentMoveLocation.getPiece().draw(g2);
+            }
         }
 
         // Color hovered square
@@ -343,6 +377,7 @@ public class Game extends JPanel implements Runnable {
 
     public void swapTurn() {
         this.currColor = (this.currColor == CONSTANTS.WHITE) ? CONSTANTS.BLACK : CONSTANTS.WHITE;
+        checkGameState = false;
     }
 
     public void handlePieceSelection(int pieceRow, int pieceCol) {
@@ -357,10 +392,10 @@ public class Game extends JPanel implements Runnable {
         }
     }
 
-    public void handlePiecePlacement() {
+    public void handlePiecePlacement(Move move) {
         if(this.validSquare) {
             // Update moved piece
-            this.activePC.updatePos(this.board);
+            this.activePC.updatePos(this.board, move);
             
             // square highlighting
             int currRow = this.activePC.getRow(this.activePC.y);
@@ -374,7 +409,7 @@ public class Game extends JPanel implements Runnable {
 
             // castle
             if(Piece.castlePC != null) {
-                Piece.castlePC.updatePos(this.board);
+                Piece.castlePC.updatePos(this.board, move);
                 Piece.castlePC = null;
             }
 
@@ -386,9 +421,10 @@ public class Game extends JPanel implements Runnable {
 
             // en-passant
             if (this.clearEnPassantNextTurn) {
-                Piece.enpassantPieces.clear();
+                Piece.prevEnpassantPiece = Piece.enpassantPiece;
+                Piece.enpassantPiece = null;
             }
-            this.clearEnPassantNextTurn = !Piece.enpassantPieces.isEmpty();
+            this.clearEnPassantNextTurn = !(Piece.enpassantPiece == null);
 
             // Check if the move moved the pawn 
             if(Type.isPawn(this.activePC)) {
@@ -397,8 +433,14 @@ public class Game extends JPanel implements Runnable {
                     this.promotionPC = this.activePC;
                 }
             }
+
             // Promotion
-            if (this.promotionPC == null) { this.swapTurn(); }
+            if (this.promotionPC == null) {
+                this.gameMoves.add(move);
+                this.halfmoveClock++;
+                this.moves++;
+                this.swapTurn(); 
+            }
 
         } else {
             Sound.play("illegal");
@@ -409,7 +451,7 @@ public class Game extends JPanel implements Runnable {
         this.repaint();
     }
 
-    public void handlePiecePromotion(int clickedRow, int clickedCol) {
+    public void handlePiecePromotion(int clickedRow, int clickedCol, Move move) {
 
         Set<Piece> pcs = (this.promotionPC.color == CONSTANTS.WHITE) ? Piece.WhitePieces : Piece.BlackPieces;
 
@@ -420,12 +462,15 @@ public class Game extends JPanel implements Runnable {
                 // Promotion piece was clicked, handle accordingly
                 this.board.handlePromotion(this.promotionPC.row, this.promotionPC.col, pc);
                 pcs.add(pc);
+                move.type = MoveType.Promotion;
+                move.setPCBeforePromotion(pc);
                 break;
             }
         }
         pcs.remove(this.promotionPC);
         this.promotionPC = null;
         this.promoPCLst.clear();
+        this.gameMoves.add(move);
         this.swapTurn();
         this.repaint();
         return;
@@ -465,23 +510,6 @@ public class Game extends JPanel implements Runnable {
         } else {
             return this.black;
         }
-    }
-
-    /*
-     * TESTING
-     */
-
-    public int perft(int depth, int color) {
-        if(depth == 0) return 1;
-        int oppColor = (color == CONSTANTS.WHITE) ? CONSTANTS.BLACK : CONSTANTS.WHITE;
-        int nodes = 0;
-        MoveGen mGen = new MoveGen(board, color, checkingPC);
-        for (Move move : mGen.moves) {
-
-            nodes += perft(depth - 1, oppColor);
-
-        }
-        return nodes;
     }
 
 }
