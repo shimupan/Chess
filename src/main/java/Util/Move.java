@@ -35,9 +35,16 @@ public class Move {
         this.setMoveTypeCoords(capturedPC);
     }
 
-    public void setCastlePC(Piece CastlePC) {
+    public void setCastlePC(Piece CastlePC, MoveType castleSide) {
         this.castlePC = CastlePC;
+        int tempCol = this.castlePC.col;
+        if(castleSide == MoveType.KingSideCastle) {
+            this.castlePC.col = this.castlePC.prevCol - 2;
+        } else {
+            this.castlePC.col = this.castlePC.prevCol + 3;
+        }
         this.setMoveTypeCoords(CastlePC);
+        this.castlePC.col = tempCol;
     }
 
     public void setPCBeforePromotion(Piece PCBeforePromotion) {

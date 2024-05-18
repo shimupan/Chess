@@ -209,7 +209,8 @@ public class Game extends JPanel implements Runnable {
             prevTime = currTime;
             
             if(delta >= 1 && !processing) {
-                if(!checkGameState) {
+                
+                if(!checkGameState && !processing) {
                     if(gameMoves.size() > 0) System.out.println(gameMoves.get(gameMoves.size()-1).type);
                     checkGameState = true;
                     mg.currColor = this.currColor;
@@ -224,7 +225,7 @@ public class Game extends JPanel implements Runnable {
                     System.out.println(gs);
                 }
 
-                if(this.winner == GameState.Playing) {
+                if(this.winner == GameState.Playing && !processing) {
                     Player p = getCurrPlayer();
                     p.makeMove();
                 }
@@ -395,7 +396,7 @@ public class Game extends JPanel implements Runnable {
     public void handlePiecePlacement(Move move) {
         if(this.validSquare) {
             // Update moved piece
-            this.activePC.updatePos(this.board, move);
+            this.activePC.updatePos(this.board, move, true);
             
             // square highlighting
             int currRow = this.activePC.getRow(this.activePC.y);
@@ -409,7 +410,8 @@ public class Game extends JPanel implements Runnable {
 
             // castle
             if(Piece.castlePC != null) {
-                Piece.castlePC.updatePos(this.board, move);
+                this.handleCastling();
+                Piece.castlePC.updatePos(this.board, move, false);
                 Piece.castlePC = null;
             }
 
@@ -483,6 +485,8 @@ public class Game extends JPanel implements Runnable {
     public void handleCastling() {
         if(Piece.castlePC != null) {
             // Check which side rook is being castled
+            Piece.castlePC.prevCol = Piece.castlePC.col;
+            Piece.castlePC.prevRow = Piece.castlePC.row;
             if(Piece.castlePC.col == 0) { // left rook
                 Piece.castlePC.col += 3;
             } else {

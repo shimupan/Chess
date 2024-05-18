@@ -37,7 +37,18 @@ public class Human extends Player {
         // Mouse Release
         if(!this.game.mouse.pressed) {
             if(this.game.activePC != null) {
+                
+                // Exception for castling
                 this.move = new Move(this.game.activePC, new Coordinate(this.game.activePC.row, this.game.activePC.col), MoveType.Normal);
+                if(Type.isKing(this.game.activePC)) {
+                    for (Move m : this.game.activePC.validMoves) {
+                        if (m.destCoords.row == this.game.activePC.row && m.destCoords.col == this.game.activePC.col) {
+                            this.move = m;
+                            break;
+                        }
+                    }
+                }
+
                 this.game.handlePiecePlacement(this.move);
             }
         }
@@ -67,7 +78,6 @@ public class Human extends Player {
             if (move.destCoords.equals(target)) {
                 this.game.canMove = true;
                 this.game.validSquare = true;
-                this.game.handleCastling();
                 break;
             } else {
                 this.game.canMove = false;

@@ -37,16 +37,14 @@ public class King extends Piece {
         if(!this.moved) {
             // right castling
             if(targetCol == this.prevCol + 2 && !pieceOnStraightLine(targetRow, targetCol, board)) {
-                Piece rightRook = board.getPiece(this.prevRow, this.prevCol+3);
-                if(rightRook != null && !rightRook.moved) {
+                if(board.containsPiece(this.prevRow, this.prevCol+3) && !board.getPiece(this.prevRow, this.prevCol+3).moved) {
                     return MoveType.KingSideCastle;
                 }
             }
 
             // left castle
             if(targetCol == this.prevCol - 2 && !pieceOnStraightLine(targetRow, targetCol, board)) {
-                Piece leftRook = board.getPiece(this.prevRow, this.prevCol-4);
-                if(leftRook != null && !leftRook.moved && !board.containsPiece(this.prevRow, this.prevCol-3)) {
+                if(board.containsPiece(this.prevRow, this.prevCol-4) && !board.getPiece(this.prevRow, this.prevCol-4).moved && !board.containsPiece(this.prevRow, this.prevCol-3)) {
                     return MoveType.QueenSideCastle;
                 }
             }
@@ -75,9 +73,9 @@ public class King extends Piece {
             if(moveType != MoveType.Invalid) {
                 Move m = new Move(this, new Coordinate(c.row, c.col), moveType);
                 if(moveType == MoveType.QueenSideCastle) {
-                    m.setCastlePC(board.getPiece(this.prevRow, this.prevCol-4));
+                    m.setCastlePC(board.getPiece(this.prevRow, this.prevCol-4), moveType);
                 } else if (moveType == MoveType.KingSideCastle) {
-                    m.setCastlePC(board.getPiece(this.prevRow, this.prevCol+3));
+                    m.setCastlePC(board.getPiece(this.prevRow, this.prevCol+3), moveType);
                 }
                 if(check) {
                     // Check if current move will put king in check

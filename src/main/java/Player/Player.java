@@ -50,23 +50,27 @@ public abstract class Player {
             this.updatePiecePosition(move.getCapturedPC(), move.moveTypePrevCoords, move.moveTypeDestCoords, move, false);
             Piece.enpassantPiece = move.getCapturedPC();
         } else if(move.type == MoveType.QueenSideCastle || move.type == MoveType.KingSideCastle) {
+            // Move the king back to its original position
             this.board.getSquare(move.prevCoords.row, move.prevCoords.col).updatePiece(move.p);
-            this.board.getSquare(move.destCoords.row, move.destCoords.col).updatePiece(move.getCastlePC());
-            move.p.row = move.prevCoords.row;
-            move.p.col = move.prevCoords.col;
-            move.p.moved = move.firstMove;
-            move.p.updatePos(board, move);
-            move.getCastlePC().row = move.destCoords.row;
-            move.getCastlePC().col = move.destCoords.col;
-            move.getCastlePC().moved = move.firstMove;
-            move.getCastlePC().updatePos(board, move);
+            this.board.getSquare(move.destCoords.row, move.destCoords.col).updatePiece(null);
+            // Move the rook back to its original position
+            this.board.getSquare(move.moveTypePrevCoords.row, move.moveTypePrevCoords.col).updatePiece(move.getCastlePC());
+            this.board.getSquare(move.moveTypeDestCoords.row, move.moveTypeDestCoords.col).updatePiece(null);
+
+            // Fix the king's position
+            this.updatePiecePosition(move.p, move.prevCoords, move.destCoords, move, true);
+            // Fix the rook's position
+            this.updatePiecePosition(move.getCastlePC(), move.moveTypePrevCoords, move.moveTypeDestCoords, move, true);
+            Piece.enpassantPiece = Piece.prevEnpassantPiece;
+            Piece.enpassantPiece = null;
         } else if(move.type == MoveType.Promotion) {
+            // TODO: Fix this
             this.board.getSquare(move.prevCoords.row, move.prevCoords.col).updatePiece(move.p);
             this.board.getSquare(move.destCoords.row, move.destCoords.col).updatePiece(move.getPCBeforePromotion());
             move.p.row = move.prevCoords.row;
             move.p.col = move.prevCoords.col;
             move.p.moved = move.firstMove;
-            move.p.updatePos(board, move);
+            move.p.updatePos(board, move, true);
         }
         this.game.activePC = null;
         this.game.activeSQ = null;
@@ -90,11 +94,10 @@ public abstract class Player {
     piece.prevRow = prevCoords.row;
     piece.prevCol = prevCoords.col;
     if(update) {
-        piece.updatePos(board, move);
-        move.p.moved = move.firstMove;
+        piece.updatePos(board, move, update);
+        piece.moved = move.firstMove;
     }
 }
-
     public void update() { }
     
 }

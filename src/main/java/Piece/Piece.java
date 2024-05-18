@@ -146,7 +146,7 @@ public abstract class Piece {
         return img;
     }
 
-    public void updatePos(Board board, Move move) {
+    public void updatePos(Board board, Move move, boolean playSound) {
         this.x = getX(col);
         this.y = getY(row);
         this.col = getCol(x);
@@ -173,8 +173,10 @@ public abstract class Piece {
                     capturedSquare.getPiece() != null && 
                     Type.isPawn(capturedSquare.getPiece())) {
                         
-                    Sound.play("capture");
-                    enpassantSound = true;
+                    if(playSound) {
+                        Sound.play("capture");
+                        enpassantSound = true;
+                    }
 
                     if (capturedSquare.getPiece().color == CONSTANTS.WHITE) {
                         WhitePieces.remove(capturedSquare.getPiece());
@@ -186,13 +188,15 @@ public abstract class Piece {
                     capturedSquare.updatePiece(null);
                 }
             }
+        } else if(Type.isKing(this)) {
+            if(move.type == MoveType.QueenSideCastle || move.type == MoveType.KingSideCastle) {
+                Piece.castlePC = move.getCastlePC();
+            }
         }
 
         // castle
-        if(Piece.castlePC != null) {
+        if(Piece.castlePC != null && playSound) {
             Sound.play("castle");
-            move.setCapturedPC(castlePC);
-            Piece.castlePC = null;
             castleSound = true;
         }
 
@@ -202,7 +206,7 @@ public abstract class Piece {
         
         if(Dest.equals(Prev) || !Prev.containsPiece()) return;
 
-        if(!enpassantSound && !castleSound) {
+        if(!enpassantSound && !castleSound && playSound) {
             if(Dest.containsPiece()) {
                 Sound.play("capture");
                 if (Dest.getPiece().color == CONSTANTS.WHITE) {

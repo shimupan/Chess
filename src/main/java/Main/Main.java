@@ -19,7 +19,7 @@ public class Main {
         // ARGS
         String fen = "r3k2r/8/8/8/8/8/8/R3K2R w KQkq - 0 1";
         PlayerType p1 = PlayerType.Human;
-        PlayerType p2 = PlayerType.AI;
+        PlayerType p2 = PlayerType.Human;
         if(args.length > 0) {
             fen = args[0];
             if(args[1].equals("AI")) {
