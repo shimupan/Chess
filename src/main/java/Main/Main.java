@@ -17,7 +17,7 @@ public class Main {
     public static JButton undoButton;
     public static void main(String[] args) {
         // ARGS
-        String fen = "r3k2r/8/8/8/8/8/8/R3K2R w KQkq - 0 1";
+        String fen = "";
         PlayerType p1 = PlayerType.Human;
         PlayerType p2 = PlayerType.Human;
         if(args.length > 0) {

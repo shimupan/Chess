@@ -54,10 +54,10 @@ public class Pawn extends Piece {
             }
             // En Passant
             if(Math.abs(targetCol - this.prevCol) == 1 && 
-            targetRow == this.prevRow + direction) {
-                if(Piece.enpassantPiece != null && Piece.enpassantPiece.col == targetCol && Piece.enpassantPiece.color != this.color) {
+               targetRow == this.prevRow + direction) {
+               if(Piece.enpassantPiece != null && Piece.enpassantPiece.col == targetCol && Piece.enpassantPiece.color != this.color && (this.prevRow == 3 || this.prevRow == 4) ) {
                     return MoveType.EnPassant;
-                }
+               }
             }
         }
 
