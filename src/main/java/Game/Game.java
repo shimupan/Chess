@@ -10,7 +10,10 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import javax.swing.JPanel;
@@ -522,10 +525,19 @@ public class Game extends JPanel implements Runnable {
         int nodes = 0;
         mg.currColor = this.currColor;
         mg.generateMoves();
-        Set<Move> move = new HashSet<>(mg.moves);
+        List<Move> move = new ArrayList<>(mg.moves);
+        Collections.sort(move, new Comparator<Move>() {
+            @Override
+            public int compare(Move m1, Move m2) {
+                return m1.boardNotation.compareTo(m2.boardNotation);
+            }
+        });
         for(Move m: move) {
             this.validSquare = true;
             this.handlePieceSelection(m.p.row, m.p.col);
+            if(this.activePC == null) {
+                int x = 5;
+            }
             this.activePC.row = m.destCoords.row;
             this.activePC.col = m.destCoords.col;
             if( Type.isPawn(this.activePC) && 
@@ -534,7 +546,8 @@ public class Game extends JPanel implements Runnable {
                 this.promotionPC = this.activePC;
             }
             this.handlePiecePlacement(m);
-            nodes += perft(depth - 1);
+            int performance = perft(depth - 1);
+            nodes += performance;
             this.undoMove();
         }
         return nodes;

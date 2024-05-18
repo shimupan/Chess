@@ -34,6 +34,12 @@ public class Board {
         return new Coordinate(row, col);
     }
 
+    public static String squareToAlgebraic(Coordinate c) {
+        char col = (char) (c.col + 'a');
+        char row = (char) (c.row + '1');
+        return "" + col + row;
+    }
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();

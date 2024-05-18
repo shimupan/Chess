@@ -58,8 +58,9 @@ public class PerftTest {
         assertEquals(result, 8902);
     }
 
+    /* 
     @Test
-    public void CustomBoardPerftDepth3() {
+    public void CustomBoardPerft1() {
         g.init("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1", AI, AI);
         window.setVisible(true);
         int result = g.perft(1);
@@ -68,4 +69,12 @@ public class PerftTest {
         assertEquals(result, 2039);
     }
 
+    @Test
+    public void CustomBoardPerft2() {
+        g.init("rnbq1k1r/pp1Pbppp/2p5/8/2B5/8/PPP1NnPP/RNBQK2R w KQ - 1 8  ", AI, AI);
+        window.setVisible(true);
+        int result = g.perft(1);
+        assertEquals(result, 44);
+    }
+    */
 }

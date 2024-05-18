@@ -1,5 +1,6 @@
 package Util;
 
+import Game.Board;
 import Piece.Piece;
 import Util.Enums.MoveType;
 
@@ -8,6 +9,8 @@ public class Move {
     public Coordinate destCoords, prevCoords, moveTypeDestCoords, moveTypePrevCoords;
     public MoveType type;
     public boolean firstMove;
+
+    public String boardNotation;
     
     private Piece capturedPC;
     private Piece castlePC;
@@ -20,14 +23,11 @@ public class Move {
         this.prevCoords = new Coordinate(p.prevRow, p.prevCol);
         this.type = type;
         this.firstMove = p.moved;
+        this.boardNotation = Board.squareToAlgebraic(prevCoords) + Board.squareToAlgebraic(destCoords);
     }
-
+    
     public Move(Piece p, int destRow, int destCol, MoveType type) {
-        this.p = p;
-        this.capturedPC = null;
-        this.destCoords = new Coordinate(destRow, destCol);
-        this.type = type;
-        this.firstMove = p.moved;
+        this(p, new Coordinate(destRow, destCol), type);
     }
 
     public void setCapturedPC(Piece capturedPC) {
@@ -83,11 +83,16 @@ public class Move {
             return false;
         }
         Move m = (Move) o;
-        return this.p.equals(m.p) && this.destCoords.equals(m.destCoords);
+        return this.boardNotation.equals(m.boardNotation) && this.p.equals(m.p);
     }
 
     @Override
     public int hashCode() {
-        return ( 31 * this.p.hashCode() + 31 * this.destCoords.hashCode() ); 
+        return ( 31 * this.p.hashCode() + 31 * this.boardNotation.hashCode() ); 
+    }
+
+    @Override
+    public String toString() {
+        return this.boardNotation;
     }
 }
