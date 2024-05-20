@@ -1,8 +1,11 @@
 package Player;
 
+import java.util.Set;
+
 import Game.Board;
 import Game.Game;
 import Piece.Piece;
+import Util.CONSTANTS;
 import Util.Coordinate;
 import Util.Enums.MoveType;
 import Util.Move;
@@ -40,6 +43,8 @@ public abstract class Player {
             this.updatePiecePosition(move.getCapturedPC(), move.moveTypePrevCoords, move.moveTypeDestCoords, move, false);
             Piece.enpassantPiece = Piece.prevEnpassantPiece;
             Piece.enpassantPiece = null;
+            Set<Piece> pieces = (move.getCapturedPC().color == CONSTANTS.WHITE) ? Piece.WhitePieces : Piece.BlackPieces;
+            pieces.add(move.getCapturedPC());
         } else if(move.type == MoveType.EnPassant) {
             this.board.getSquare(move.prevCoords.row, move.prevCoords.col).updatePiece(move.p);
             this.board.getSquare(move.moveTypeDestCoords.row, move.moveTypeDestCoords.col).updatePiece(move.getCapturedPC());
@@ -49,6 +54,8 @@ public abstract class Player {
             // Fix the captured piece's position
             this.updatePiecePosition(move.getCapturedPC(), move.moveTypePrevCoords, move.moveTypeDestCoords, move, false);
             Piece.enpassantPiece = move.getCapturedPC();
+            Set<Piece> pieces = (move.getCapturedPC().color == CONSTANTS.WHITE) ? Piece.WhitePieces : Piece.BlackPieces;
+            pieces.add(move.getCapturedPC());
         } else if(move.type == MoveType.QueenSideCastle || move.type == MoveType.KingSideCastle) {
             // Move the king back to its original position
             this.board.getSquare(move.prevCoords.row, move.prevCoords.col).updatePiece(move.p);

@@ -520,6 +520,7 @@ public class Game extends JPanel implements Runnable {
         }
     }
 
+    // missing b7b6 and b7b5 after b1a3
     public int perft(int depth) {
         if(depth == 0) return 1;
         int nodes = 0;
@@ -532,12 +533,12 @@ public class Game extends JPanel implements Runnable {
                 return m1.boardNotation.compareTo(m2.boardNotation);
             }
         });
-        for(Move m: move) {
+        for(Move m: move) { // b2a3
+            if(m.boardNotation.equals("b1a3")) {
+                System.out.println(this.board);
+            }
             this.validSquare = true;
             this.handlePieceSelection(m.p.row, m.p.col);
-            if(this.activePC == null) {
-                int x = 5;
-            }
             this.activePC.row = m.destCoords.row;
             this.activePC.col = m.destCoords.col;
             if( Type.isPawn(this.activePC) && 

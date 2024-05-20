@@ -42,13 +42,6 @@ public class PerftTest {
         sleep(600000);
     }
     */
-    @Test
-    public void DefaultBoardPerftDepth2() {
-        g.init("", AI, AI);
-        window.setVisible(true);
-        int result = g.perft(2);
-        assertEquals(result, 400);
-    }
 
     @Test
     public void DefaultBoardPerftDepth3() {
@@ -56,6 +49,22 @@ public class PerftTest {
         window.setVisible(true);
         int result = g.perft(3);
         assertEquals(result, 8902);
+    }
+
+    @Test
+    public void DefaultBoardPerftDepth4() {
+        g.init("", AI, AI);
+        window.setVisible(true);
+        int result = g.perft(4);
+        assertEquals(result, 197281);
+    }
+
+    @Test
+    public void PerftDebug() {
+        g.init("rnbqkbnr/pppppppp/8/8/8/N7/PPPPPPPP/R1BQKBNR b KQkq - 0 1", AI, AI);
+        window.setVisible(true);
+        int result = g.perft(2);
+        assertEquals(result, 400);
     }
 
     /* 

@@ -6,7 +6,6 @@ import java.awt.Graphics2D;
 import Piece.*;
 import Util.CONSTANTS;
 import Util.Coordinate;
-import Util.Move;
 import Util.Type;
 
 public class Board {
@@ -36,7 +35,7 @@ public class Board {
 
     public static String squareToAlgebraic(Coordinate c) {
         char col = (char) (c.col + 'a');
-        char row = (char) (c.row + '1');
+        char row = (char) (8 - c.row + '0');
         return "" + col + row;
     }
 
