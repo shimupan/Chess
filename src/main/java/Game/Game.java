@@ -22,6 +22,7 @@ import java.awt.event.ActionEvent;
 
 import Controls.*;
 import Main.Main;
+import Main.Sidebar;
 import Piece.*;
 import Player.*;
 import Util.*;
@@ -131,14 +132,15 @@ public class Game extends JPanel implements Runnable {
     }
 
     public void initGUI() {
-        Main.resetButton = ButtonFactory.createButton(
+        // Initialling buttons
+        Sidebar.resetButton = ButtonFactory.createButton(
             "Reset Game",
             new Rectangle(850, 700, 200, 50),
             new Font("Arial", Font.BOLD, 20),
             new Color(119,154,88),
             new Color(234,235,200)
         );
-        Main.resetButton.addActionListener(new ActionListener() {
+        Sidebar.resetButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 processing = true;
                 resetGame();
@@ -146,14 +148,14 @@ public class Game extends JPanel implements Runnable {
             }
         });
 
-        Main.undoButton = ButtonFactory.createButton(
+        Sidebar.undoButton = ButtonFactory.createButton(
             "Undo Move",
             new Rectangle(850, 600, 200, 50),
             new Font("Arial", Font.BOLD, 20),
             new Color(119,154,88),
             new Color(234,235,200)
         );
-        Main.undoButton.addActionListener(new ActionListener() {
+        Sidebar.undoButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 processing = true;
                 undoMove();
@@ -251,6 +253,12 @@ public class Game extends JPanel implements Runnable {
         Graphics2D g2 = (Graphics2D) g;
 
         board.draw( g2 );
+
+        // Display whose turn it is
+        g2.setColor(Color.BLACK);
+        g2.setFont(new Font("default", Font.BOLD, 16));
+        String turn = (this.currColor == CONSTANTS.WHITE) ? "White's turn" : "Black's turn";
+        g2.drawString(turn, 720, 20);
 
         // Highlight the current move set
         if(this.previousMoveLocation != null && this.currentMoveLocation != null) {
