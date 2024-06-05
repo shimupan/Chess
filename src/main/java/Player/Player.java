@@ -87,24 +87,24 @@ public abstract class Player {
         this.game.previousMoveLocation = null;
     }
 
-    private void updatePiecePosition(Piece piece, Coordinate prevCoords, Coordinate destCoords, Move move, boolean update) {
-    this.board.getSquare(prevCoords.row, prevCoords.col).updatePiece(piece);
-    
-    if(update) {
-        piece.row = prevCoords.row;
-        piece.col = prevCoords.col;
-    } else {
-        piece.row = destCoords.row;
-        piece.col = destCoords.col;
+    public void updatePiecePosition(Piece piece, Coordinate prevCoords, Coordinate destCoords, Move move, boolean update) {
+        this.board.getSquare(prevCoords.row, prevCoords.col).updatePiece(piece);
+        
+        if(update) {
+            piece.row = prevCoords.row;
+            piece.col = prevCoords.col;
+        } else {
+            piece.row = destCoords.row;
+            piece.col = destCoords.col;
+        }
+        
+        piece.prevRow = prevCoords.row;
+        piece.prevCol = prevCoords.col;
+        if(update) {
+            piece.updatePos(board, move, update);
+            piece.moved = move.firstMove;
+        }
     }
-    
-    piece.prevRow = prevCoords.row;
-    piece.prevCol = prevCoords.col;
-    if(update) {
-        piece.updatePos(board, move, update);
-        piece.moved = move.firstMove;
-    }
-}
     public void update() { }
     
 }

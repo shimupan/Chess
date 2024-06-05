@@ -122,6 +122,15 @@ public abstract class Piece {
         p.prevRow = tmpRow;
     }
 
+    public static int countMaterial(int color) {
+        int material = 0;
+        Set<Piece> pieces = (color == CONSTANTS.WHITE) ? WhitePieces : BlackPieces;
+        for (Piece p : pieces) {
+            material += p.value;
+        }
+        return material;
+    }
+
     public void draw(Graphics2D g2) {
         int drawX = this.x;
         int drawY = this.y;

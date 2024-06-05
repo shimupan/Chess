@@ -27,18 +27,6 @@ public class Board {
         }
     }
 
-    public static Coordinate algebraicToSquare(String algebraic) {
-        int row = algebraic.charAt(1) - '1';
-        int col = algebraic.charAt(0) - 'a';
-        return new Coordinate(row, col);
-    }
-
-    public static String squareToAlgebraic(Coordinate c) {
-        char col = (char) (c.col + 'a');
-        char row = (char) (8 - c.row + '0');
-        return "" + col + row;
-    }
-
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
@@ -79,6 +67,27 @@ public class Board {
         }
 
         return sb.toString();
+    }
+
+    public static Coordinate algebraicToSquare(String algebraic) {
+        int row = algebraic.charAt(1) - '1';
+        int col = algebraic.charAt(0) - 'a';
+        return new Coordinate(row, col);
+    }
+
+    public static String squareToAlgebraic(Coordinate c) {
+        char col = (char) (c.col + 'a');
+        char row = (char) (8 - c.row + '0');
+        return "" + col + row;
+    }
+
+    public static int Eval(int color) {
+        int WhiteScore = Piece.countMaterial(CONSTANTS.WHITE);
+        int BlackScore = Piece.countMaterial(CONSTANTS.BLACK);
+
+        int result = WhiteScore - BlackScore;
+
+        return (CONSTANTS.WHITE == color) ? result : -result;
     }
 
     public String[] loadFEN(String fen) {
@@ -192,6 +201,11 @@ public class Board {
         return rep[row][col].containsPiece();
     }
 
+    public void handlePromotion(int row, int col, Piece promoPiece) {
+        Piece.copy(this.getPiece(row, col), promoPiece);
+        this.getSquare(row, col).updatePiece(promoPiece);
+    }
+
     private void initBoard() {
         for(int row = 0; row < CONSTANTS.ROWS; row++) {
             for(int col = 0; col < CONSTANTS.COLS; col++) {
@@ -226,11 +240,6 @@ public class Board {
 
         // king
         rep[row_other][4] = new Square(row_other, 4, new King(color, row_other, 4));
-    }
-
-    public void handlePromotion(int row, int col, Piece promoPiece) {
-        Piece.copy(this.getPiece(row, col), promoPiece);
-        this.getSquare(row, col).updatePiece(promoPiece);
     }
 
 }

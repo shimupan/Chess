@@ -1,5 +1,7 @@
 package Util;
 
+import java.util.List;
+
 import Game.Board;
 import Piece.Piece;
 import Util.Enums.MoveType;
@@ -28,6 +30,37 @@ public class Move {
     
     public Move(Piece p, int destRow, int destCol, MoveType type) {
         this(p, new Coordinate(destRow, destCol), type);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if(!(o instanceof Move)) {
+            return false;
+        }
+        Move m = (Move) o;
+        return this.boardNotation.equals(m.boardNotation) && this.p.equals(m.p);
+    }
+
+    @Override
+    public int hashCode() {
+        return ( 31 * this.p.hashCode() + 31 * this.boardNotation.hashCode() ); 
+    }
+
+    @Override
+    public String toString() {
+        return this.boardNotation;
+    }
+
+    public static void sortMoves(List<Move> moves) {
+        moves.sort((m1, m2) -> {
+            if(m1.type == MoveType.Capture && m2.type != MoveType.Capture) {
+                return -1;
+            } else if(m1.type != MoveType.Capture && m2.type == MoveType.Capture) {
+                return 1;
+            } else {
+                return 0;
+            }
+        });
     }
 
     public void setCapturedPC(Piece capturedPC) {
@@ -75,24 +108,5 @@ public class Move {
     private void setMoveTypeCoords(Piece p) {
         this.moveTypeDestCoords = new Coordinate(p.row, p.col);
         this.moveTypePrevCoords = new Coordinate(p.prevRow, p.prevCol);
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if(!(o instanceof Move)) {
-            return false;
-        }
-        Move m = (Move) o;
-        return this.boardNotation.equals(m.boardNotation) && this.p.equals(m.p);
-    }
-
-    @Override
-    public int hashCode() {
-        return ( 31 * this.p.hashCode() + 31 * this.boardNotation.hashCode() ); 
-    }
-
-    @Override
-    public String toString() {
-        return this.boardNotation;
     }
 }

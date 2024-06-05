@@ -14,7 +14,7 @@ public class GameTest {
     Enums.PlayerType Human = Enums.PlayerType.Human;
     Enums.PlayerType AI = Enums.PlayerType.AI;
 
-    private void sleep(int ms) {
+    public static void sleep(int ms) {
         try {
             // Keep the test running for 10 minutes or until the user manually closes the GUI
             Thread.sleep(600000); // time in milliseconds

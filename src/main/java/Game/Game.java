@@ -520,7 +520,32 @@ public class Game extends JPanel implements Runnable {
         }
     }
 
-    // missing b7b6 and b7b5 after b1a3
+    public int AlphaBetaPrune(int depth, int alpha, int beta) {
+        if(depth == 0) return Board.Eval(this.currColor);
+        mg.currColor = this.currColor;
+        mg.generateMoves();
+        List<Move> move = new ArrayList<>(mg.moves);
+        if(move.size() == 0) {
+            if(checkingPC != null) { // checkmate
+                return -10000;
+            } else {                 // stalemate
+                return 0;
+            }
+        }
+
+        for(Move m: move) {
+            this.validSquare = true;
+            this.handlePieceSelection(m.p.row, m.p.col);
+            this.handlePieceUpdate(m);
+            this.handlePiecePlacement(m);
+            int performance = -AlphaBetaPrune(depth - 1, -beta, -alpha);
+            this.undoMove();
+            if(performance >= beta) return beta; // prune
+            alpha = Math.max(alpha, performance);
+        }
+        return alpha;
+    }
+
     public int perft(int depth) {
         if(depth == 0) return 1;
         int nodes = 0;
@@ -533,25 +558,26 @@ public class Game extends JPanel implements Runnable {
                 return m1.boardNotation.compareTo(m2.boardNotation);
             }
         });
-        for(Move m: move) { // b2a3
-            if(m.boardNotation.equals("b1a3")) {
-                System.out.println(this.board);
-            }
+        for(Move m: move) {
             this.validSquare = true;
             this.handlePieceSelection(m.p.row, m.p.col);
-            this.activePC.row = m.destCoords.row;
-            this.activePC.col = m.destCoords.col;
-            if( Type.isPawn(this.activePC) && 
-                ((this.currColor == CONSTANTS.WHITE && m.destCoords.row == 0) || 
-                (this.currColor == CONSTANTS.BLACK && m.destCoords.row == 7)) ) {
-                this.promotionPC = this.activePC;
-            }
+            this.handlePieceUpdate(m);
             this.handlePiecePlacement(m);
             int performance = perft(depth - 1);
             nodes += performance;
             this.undoMove();
         }
         return nodes;
+    }
+
+    private void handlePieceUpdate(Move m) {
+        this.activePC.row = m.destCoords.row;
+        this.activePC.col = m.destCoords.col;
+        if( Type.isPawn(this.activePC) && 
+            ((this.currColor == CONSTANTS.WHITE && m.destCoords.row == 0) || 
+            (this.currColor == CONSTANTS.BLACK && m.destCoords.row == 7)) ) {
+            this.promotionPC = this.activePC;
+        }
     }
 
 }

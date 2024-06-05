@@ -23,36 +23,33 @@ public class AI extends Player {
     public void makeMove() { 
         this.game.mg.generateMoves();
         Set<Move> moves = this.game.mg.moves;
-        Random rand = new Random();
 
         List<Move> movesList = new ArrayList<>(moves);
-        Move move = null;
-        int index = -1;
-        try {
-            index = rand.nextInt(moves.size());
-            move = movesList.get(index);
-        } catch (IllegalArgumentException e) {
-            e.printStackTrace();
-        }
-        
-        this.game.validSquare = true;
-        this.game.handlePieceSelection(move.p.row, move.p.col);
-        // Update active pc with move
-        try {
+        Move bestMove = null;
+        int bestScore = Integer.MIN_VALUE;
+        int depth = 3; // or any other depth that you want to look ahead
+
+        for (Move move : movesList) {
+            this.game.validSquare = true;
+            this.game.handlePieceSelection(move.p.row, move.p.col);
             this.updateMove(move);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        // Promote Piece
-        if(this.game.promotionPC != null) {
-            // always promote to queen for now
             this.game.handlePiecePlacement(move);
-            this.game.handlePiecePromotion(this.game.promotionPC.row, this.game.promotionPC.col, move);
-        } else {
-            // Place it
-            this.game.handlePiecePlacement(move);
+            int score = -this.game.AlphaBetaPrune(depth - 1, Integer.MIN_VALUE, Integer.MAX_VALUE);
+            this.undoMove(move);
+
+            if (score > bestScore) {
+                bestScore = score;
+                bestMove = move;
+            }
         }
-        
+
+        // Now make the best move
+        if (bestMove != null) {
+            this.game.validSquare = true;
+            this.game.handlePieceSelection(bestMove.p.row, bestMove.p.col);
+            this.updateMove(bestMove);
+            this.game.handlePiecePlacement(bestMove);
+        }
     }
 
     private void updateMove(Move move) {
