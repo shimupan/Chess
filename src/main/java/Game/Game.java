@@ -12,7 +12,6 @@ import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -21,7 +20,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 
 import Controls.*;
-import Main.Main;
 import Main.Sidebar;
 import Piece.*;
 import Player.*;
@@ -162,6 +160,27 @@ public class Game extends JPanel implements Runnable {
                 processing = false;
             }
         });
+
+        Sidebar.player1TypeButton = ButtonFactory.createButton(
+            "White: " + this.white.getClass().getSimpleName(),
+            new Rectangle(850, 100, 200, 50),
+            new Font("Arial", Font.BOLD, 20),
+            new Color(119,154,88),
+            new Color(234,235,200)
+        );
+        Sidebar.player1TypeButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                processing = true;
+                if(initialPlayerTypeWhite == PlayerType.Human) {
+                    initialPlayerTypeWhite = PlayerType.AI;
+                } else {
+                    initialPlayerTypeWhite = PlayerType.Human;
+                }
+                Sidebar.player1TypeButton.setText("White: " + initialPlayerTypeWhite);
+                resetGame();
+                processing = false;
+            }
+        });
     }
     
     protected void undoMove() {
@@ -174,7 +193,6 @@ public class Game extends JPanel implements Runnable {
         this.getCurrPlayer().undoMove(lastMove);
         this.swapTurn();
         this.repaint();
-        
     }
 
     private void resetGame() {
@@ -253,12 +271,6 @@ public class Game extends JPanel implements Runnable {
         Graphics2D g2 = (Graphics2D) g;
 
         board.draw( g2 );
-
-        // Display whose turn it is
-        g2.setColor(Color.BLACK);
-        g2.setFont(new Font("default", Font.BOLD, 16));
-        String turn = (this.currColor == CONSTANTS.WHITE) ? "White's turn" : "Black's turn";
-        g2.drawString(turn, 720, 20);
 
         // Highlight the current move set
         if(this.previousMoveLocation != null && this.currentMoveLocation != null) {
@@ -391,6 +403,7 @@ public class Game extends JPanel implements Runnable {
     public void swapTurn() {
         this.currColor = (this.currColor == CONSTANTS.WHITE) ? CONSTANTS.BLACK : CONSTANTS.WHITE;
         checkGameState = false;
+        Sidebar.updateTurn();
     }
 
     public void handlePieceSelection(int pieceRow, int pieceCol) {
@@ -405,7 +418,7 @@ public class Game extends JPanel implements Runnable {
         }
     }
 
-    public void handlePiecePlacement(Move move) {
+    public void handlePiecePlacement(Move move, boolean inSearch) {
         if(this.validSquare) {
             // Update moved piece
             this.activePC.updatePos(this.board, move, true);
@@ -462,7 +475,7 @@ public class Game extends JPanel implements Runnable {
         }
         this.activePC = null;
         this.activeSQ = null;
-        this.repaint();
+        if(!inSearch) this.repaint();
     }
 
     public void handlePiecePromotion(int clickedRow, int clickedCol, Move move) {
@@ -528,7 +541,7 @@ public class Game extends JPanel implements Runnable {
         }
     }
 
-    public int AlphaBetaPrune(int depth, int alpha, int beta) {
+    public int AlphaBetaPrune(int depth, int alpha, int beta, boolean inSearch) {
         if(depth == 0) return Board.Eval(this.currColor);
         mg.currColor = this.currColor;
         mg.generateMoves();
@@ -545,8 +558,8 @@ public class Game extends JPanel implements Runnable {
             this.validSquare = true;
             this.handlePieceSelection(m.p.row, m.p.col);
             this.handlePieceUpdate(m);
-            this.handlePiecePlacement(m);
-            int performance = -AlphaBetaPrune(depth - 1, -beta, -alpha);
+            this.handlePiecePlacement(m, inSearch);
+            int performance = -AlphaBetaPrune(depth - 1, -beta, -alpha, inSearch);
             this.undoMove();
             if(performance >= beta) return beta; // prune
             alpha = Math.max(alpha, performance);
@@ -570,7 +583,7 @@ public class Game extends JPanel implements Runnable {
             this.validSquare = true;
             this.handlePieceSelection(m.p.row, m.p.col);
             this.handlePieceUpdate(m);
-            this.handlePiecePlacement(m);
+            this.handlePiecePlacement(m, false);
             int performance = perft(depth - 1);
             nodes += performance;
             this.undoMove();

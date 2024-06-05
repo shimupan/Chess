@@ -105,6 +105,7 @@ public abstract class Player {
             piece.moved = move.firstMove;
         }
     }
+
     public void update() { }
     
 }

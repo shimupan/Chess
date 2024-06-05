@@ -49,7 +49,7 @@ public class Human extends Player {
                     }
                 }
 
-                this.game.handlePiecePlacement(this.move);
+                this.game.handlePiecePlacement(this.move, false);
             }
         }
     }

@@ -2,7 +2,6 @@ package Player;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 import java.util.Set;
 
 import Game.Board;
@@ -27,16 +26,16 @@ public class AI extends Player {
         List<Move> movesList = new ArrayList<>(moves);
         Move bestMove = null;
         int bestScore = Integer.MIN_VALUE;
-        int depth = 3; // or any other depth that you want to look ahead
+        int depth = 2;
 
         for (Move move : movesList) {
             this.game.validSquare = true;
             this.game.handlePieceSelection(move.p.row, move.p.col);
             this.updateMove(move);
-            this.game.handlePiecePlacement(move);
-            int score = -this.game.AlphaBetaPrune(depth - 1, Integer.MIN_VALUE, Integer.MAX_VALUE);
+            this.game.handlePiecePlacement(move, true);
+            int score = -this.game.AlphaBetaPrune(depth - 1, Integer.MIN_VALUE, Integer.MAX_VALUE, true);
             this.undoMove(move);
-
+            this.game.swapTurn();
             if (score > bestScore) {
                 bestScore = score;
                 bestMove = move;
@@ -48,7 +47,7 @@ public class AI extends Player {
             this.game.validSquare = true;
             this.game.handlePieceSelection(bestMove.p.row, bestMove.p.col);
             this.updateMove(bestMove);
-            this.game.handlePiecePlacement(bestMove);
+            this.game.handlePiecePlacement(bestMove, false);
         }
     }
 
